@@ -1,8 +1,11 @@
-package com.sfinias;
+package com.sfinias.resource;
 
+import com.sfinias.SigmaFiBot;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
@@ -11,9 +14,10 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 public class BotResource {
 
     @Inject
-    PreksfiBot bot;
+    SigmaFiBot bot;
 
     @GET
+    @Produces(MediaType.TEXT_PLAIN)
     public String startBot() {
 
         try {
