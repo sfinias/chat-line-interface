@@ -64,6 +64,9 @@ public class SigmaFiBot extends TelegramLongPollingBot {
             case "/meme":
                 sendMeme(user);
                 break;
+            case "/dankmeme":
+                sendDankMeme(user);
+                break;
             case "/start":
             default:
                 start(user);
@@ -88,18 +91,15 @@ public class SigmaFiBot extends TelegramLongPollingBot {
         CatModel cat = catResource.getRandomCat();
         Log.info("Cat received: " + cat);
         String url = cat.getUrl();
-        if (url.endsWith(".gif")) {
-            sendAnimation(user, url);
-        } else {
-            sendPhoto(user, url);
-        }
+        sendMediaResponse(user, url);
     }
 
     private void sendCatGif(User user) {
 
         CatModel cat = catResource.getRandomCatGif();
         Log.info("Cat gif received: " + cat);
-        sendAnimation(user, cat.getUrl());
+        String url = cat.getUrl();
+        sendMediaResponse(user, url);
     }
 
     private void sendMeme(User user) {
@@ -107,7 +107,23 @@ public class SigmaFiBot extends TelegramLongPollingBot {
         MemeModel meme = memeResource.getRandomMeme();
         Log.info("Meme received: " + meme);
         String url = meme.getUrl();
-        sendPhoto(user, url);
+        sendMediaResponse(user, url);
+    }
+
+    private void sendDankMeme(User user) {
+
+        MemeModel meme = memeResource.getRandomDankMeme();
+        Log.info("Dank Meme received: " + meme);
+        String url = meme.getUrl();
+        sendMediaResponse(user, url);
+    }
+
+    private void sendMediaResponse(User user, String url) {
+        if (url.endsWith(".gif")) {
+            sendAnimation(user, url);
+        } else {
+            sendPhoto(user, url);
+        }
     }
 
     private void sendPhoto(User user, String url) {
