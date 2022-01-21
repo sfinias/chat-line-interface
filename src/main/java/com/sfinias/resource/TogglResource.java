@@ -53,6 +53,14 @@ public class TogglResource {
     }
 
     @GET
+    @Path("/lprojects/main")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<ProjectModel> getMainLunatechProjects() {
+
+        return getLunatechProjects().stream().filter(ProjectModel::isMain).collect(Collectors.toList());
+    }
+
+    @GET
     @Path("/time")
     @Produces(MediaType.APPLICATION_JSON)
     public Map<LocalDate, List<TimeEntryModel>> getTimeEntries() {

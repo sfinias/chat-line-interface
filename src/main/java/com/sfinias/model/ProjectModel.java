@@ -1,125 +1,147 @@
 package com.sfinias.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.beans.Transient;
 
-public class ProjectModel{
+public class ProjectModel {
 
-	@JsonProperty("is_private")
-	private boolean isPrivate;
+    @JsonProperty("is_private")
+    private boolean isPrivate;
 
-	@JsonProperty("template")
-	private boolean template;
+    @JsonProperty("template")
+    private boolean template;
 
-	@JsonProperty("color")
-	private String color;
+    @JsonProperty("color")
+    private String color;
 
-	@JsonProperty("active")
-	private boolean active;
+    @JsonProperty("active")
+    private boolean active;
 
-	@JsonProperty("created_at")
-	private String createdAt;
+    @JsonProperty("created_at")
+    private String createdAt;
 
-	@JsonProperty("hex_color")
-	private String hexColor;
+    @JsonProperty("hex_color")
+    private String hexColor;
 
-	@JsonProperty("billable")
-	private boolean billable;
+    @JsonProperty("billable")
+    private boolean billable;
 
-	@JsonProperty("auto_estimates")
-	private boolean autoEstimates;
+    @JsonProperty("auto_estimates")
+    private boolean autoEstimates;
 
-	@JsonProperty("wid")
-	private int wid;
+    @JsonProperty("wid")
+    private int wid;
 
-	@JsonProperty("at")
-	private String at;
+    @JsonProperty("at")
+    private String at;
 
-	@JsonProperty("actual_hours")
-	private int actualHours;
+    @JsonProperty("actual_hours")
+    private int actualHours;
 
-	@JsonProperty("name")
-	private String name;
+    @JsonProperty("name")
+    private String name;
 
-	@JsonProperty("id")
-	private int id;
+    @JsonProperty("id")
+    private int id;
 
-	@JsonProperty("cid")
-	private int cid;
+    @JsonProperty("cid")
+    private int cid;
 
-	public boolean isIsPrivate(){
-		return isPrivate;
-	}
+    public boolean isIsPrivate() {
 
-	public boolean isTemplate(){
-		return template;
-	}
+        return isPrivate;
+    }
 
-	public String getColor(){
-		return color;
-	}
+    public boolean isTemplate() {
 
-	public boolean isActive(){
-		return active;
-	}
+        return template;
+    }
 
-	public String getCreatedAt(){
-		return createdAt;
-	}
+    public String getColor() {
 
-	public String getHexColor(){
-		return hexColor;
-	}
+        return color;
+    }
 
-	public boolean isBillable(){
-		return billable;
-	}
+    public boolean isActive() {
 
-	public boolean isAutoEstimates(){
-		return autoEstimates;
-	}
+        return active;
+    }
 
-	public int getWid(){
-		return wid;
-	}
+    public String getCreatedAt() {
 
-	public String getAt(){
-		return at;
-	}
+        return createdAt;
+    }
 
-	public int getActualHours(){
-		return actualHours;
-	}
+    public String getHexColor() {
 
-	public String getName(){
-		return name;
-	}
+        return hexColor;
+    }
 
-	public int getId(){
-		return id;
-	}
+    public boolean isBillable() {
 
-	public int getCid(){
-		return cid;
-	}
+        return billable;
+    }
 
-	@Override
- 	public String toString(){
-		return 
-			"ProjectModel{" + 
-			"is_private = '" + isPrivate + '\'' + 
-			",template = '" + template + '\'' + 
-			",color = '" + color + '\'' + 
-			",active = '" + active + '\'' + 
-			",created_at = '" + createdAt + '\'' + 
-			",hex_color = '" + hexColor + '\'' + 
-			",billable = '" + billable + '\'' + 
-			",auto_estimates = '" + autoEstimates + '\'' + 
-			",wid = '" + wid + '\'' + 
-			",at = '" + at + '\'' + 
-			",actual_hours = '" + actualHours + '\'' + 
-			",name = '" + name + '\'' + 
-			",id = '" + id + '\'' + 
-			",cid = '" + cid + '\'' + 
-			"}";
-		}
+    public boolean isAutoEstimates() {
+
+        return autoEstimates;
+    }
+
+    public int getWid() {
+
+        return wid;
+    }
+
+    public String getAt() {
+
+        return at;
+    }
+
+    public int getActualHours() {
+
+        return actualHours;
+    }
+
+    public String getName() {
+
+        return name;
+    }
+
+    public int getId() {
+
+        return id;
+    }
+
+    public int getCid() {
+
+        return cid;
+    }
+
+    @Override
+    public String toString() {
+
+        return
+                "ProjectModel{" +
+                        "is_private = '" + isPrivate + '\'' +
+                        ",template = '" + template + '\'' +
+                        ",color = '" + color + '\'' +
+                        ",active = '" + active + '\'' +
+                        ",created_at = '" + createdAt + '\'' +
+                        ",hex_color = '" + hexColor + '\'' +
+                        ",billable = '" + billable + '\'' +
+                        ",auto_estimates = '" + autoEstimates + '\'' +
+                        ",wid = '" + wid + '\'' +
+                        ",at = '" + at + '\'' +
+                        ",actual_hours = '" + actualHours + '\'' +
+                        ",name = '" + name + '\'' +
+                        ",id = '" + id + '\'' +
+                        ",cid = '" + cid + '\'' +
+                        "}";
+    }
+
+    @Transient
+    public boolean isMain() {
+
+        return isBillable() || "Lunatech - School".equals(this.name);
+    }
 }
