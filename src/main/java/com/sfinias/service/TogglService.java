@@ -2,7 +2,7 @@ package com.sfinias.service;
 
 import com.sfinias.model.ProjectModel;
 import com.sfinias.model.TimeEntryModel;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -27,5 +27,5 @@ public interface TogglService {
     @Path("/time_entries")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    List<TimeEntryModel> getTimeEntries(@HeaderParam("authorization") String token, @QueryParam("start_date") LocalDateTime startDate, @QueryParam("end_date") LocalDateTime endDate);
+    List<TimeEntryModel> getTimeEntries(@HeaderParam("authorization") String token, @QueryParam("start_date") Instant startDate, @QueryParam("end_date") Instant endDate);
 }

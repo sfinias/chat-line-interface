@@ -21,6 +21,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jboss.resteasy.annotations.jaxrs.PathParam;
 import org.jboss.resteasy.annotations.jaxrs.QueryParam;
 
 @Path("/toggl")
@@ -70,6 +71,15 @@ public class TogglResource {
                 .collect(Collectors.toMap((TimeEntryModel timeEntryModel) -> LocalDateTime.ofInstant(timeEntryModel.getStop(), ZoneId.systemDefault()).toLocalDate(),
                         List::of, (x, y) -> Stream.of(x, y).flatMap(Collection::stream).collect(Collectors.toList()),
                         () -> new TreeMap<>(Comparator.reverseOrder())));
+    }
+
+    @GET
+    @Path("/time/{date}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<TimeEntryModel> getTimeEntriesOfDate(@PathParam String date) {
+
+        LocalDate localDate = LocalDate.parse(date);
+        return togglService.getTimeEntries(encryptedToken(), localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant(), localDate.plusDays(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
     }
 
     private String encryptedToken() {
