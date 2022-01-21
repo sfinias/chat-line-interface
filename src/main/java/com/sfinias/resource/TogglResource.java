@@ -1,12 +1,15 @@
 package com.sfinias.resource;
 
 import com.sfinias.model.ProjectModel;
+import com.sfinias.model.RequestTimeEntryModel;
+import com.sfinias.model.ResponseTimeEntryModel;
 import com.sfinias.model.TimeEntryModel;
 import com.sfinias.service.TogglService;
 import io.quarkus.logging.Log;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Comparator;
@@ -80,6 +83,29 @@ public class TogglResource {
 
         LocalDate localDate = LocalDate.parse(date);
         return togglService.getTimeEntries(encryptedToken(), localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant(), localDate.plusDays(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+    }
+
+    @GET
+    @Path("/copy_entry/{date}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<ResponseTimeEntryModel> copyTimeEntriesOfDate(@PathParam String date) {
+
+        List<TimeEntryModel> timeEntries = getTimeEntriesOfDate(date);
+        return timeEntries.stream()
+                .map(timeEntry -> {
+                    TimeEntryModel newTimeEntry = new TimeEntryModel();
+                    newTimeEntry.setDescription(timeEntry.getDescription());
+                    newTimeEntry.setDuration(timeEntry.getDuration());
+                    newTimeEntry.setBillable(timeEntry.isBillable());
+                    newTimeEntry.setStart(ZonedDateTime.of(LocalDate.now(), ZonedDateTime.ofInstant(timeEntry.getStart(), ZoneId.systemDefault()).toLocalTime(), ZoneId.systemDefault()).toInstant());
+                    newTimeEntry.setPid(timeEntry.getPid());
+                    newTimeEntry.setCreatedWith("SigmaFiBot");
+                    RequestTimeEntryModel requestTimeEntryModel = new RequestTimeEntryModel();
+                    requestTimeEntryModel.setTimeEntry(newTimeEntry);
+                    return requestTimeEntryModel;
+                })
+                .map(newTimeEntry -> togglService.createTimeEntry(encryptedToken(), newTimeEntry))
+                .collect(Collectors.toList());
     }
 
     private String encryptedToken() {
