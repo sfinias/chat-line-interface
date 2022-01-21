@@ -1,6 +1,8 @@
 package com.sfinias.service;
 
 import com.sfinias.model.ProjectModel;
+import com.sfinias.model.TimeEntryModel;
+import java.time.LocalDateTime;
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -10,6 +12,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import org.jboss.resteasy.annotations.jaxrs.PathParam;
+import org.jboss.resteasy.annotations.jaxrs.QueryParam;
 
 @RegisterRestClient
 public interface TogglService {
@@ -19,4 +22,10 @@ public interface TogglService {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     List<ProjectModel> getProjectsFromWorkspace(@PathParam long wid, @HeaderParam("authorization") String token);
+
+    @GET
+    @Path("/time_entries")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    List<TimeEntryModel> getTimeEntries(@HeaderParam("authorization") String token, @QueryParam("start_date") LocalDateTime startDate, @QueryParam("end_date") LocalDateTime endDate);
 }
