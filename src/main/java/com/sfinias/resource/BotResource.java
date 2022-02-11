@@ -6,6 +6,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import org.jboss.resteasy.annotations.jaxrs.QueryParam;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
@@ -27,5 +28,21 @@ public class BotResource {
             e.printStackTrace();
         }
         return "started";
+    }
+
+    @GET
+    @Path("/reply")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Integer sendReply(@QueryParam long userId, @QueryParam String message, @QueryParam String placeholder) {
+
+        return this.bot.sendClientRequest(userId, message, placeholder);
+    }
+
+    @GET
+    @Path("/message")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Integer sendMessage(@QueryParam long userId, @QueryParam String message) {
+
+        return this.bot.sendMessage(userId, message);
     }
 }

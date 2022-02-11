@@ -81,14 +81,24 @@ public class TogglResource {
     @Produces(MediaType.APPLICATION_JSON)
     public List<TimeEntryModel> getTimeEntriesOfDate(@PathParam String date) {
 
-        LocalDate localDate = LocalDate.parse(date);
-        return togglService.getTimeEntries(encryptedToken(), localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant(), localDate.plusDays(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+        return getTimeEntriesOfDate(LocalDate.parse(date));
+    }
+
+    public List<TimeEntryModel> getTimeEntriesOfDate(LocalDate date) {
+
+        return togglService.getTimeEntries(encryptedToken(), date.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant(), date.plusDays(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+
     }
 
     @GET
     @Path("/copy_entry/{date}")
     @Produces(MediaType.APPLICATION_JSON)
     public List<ResponseTimeEntryModel> copyTimeEntriesOfDate(@PathParam String date) {
+
+        return copyTimeEntriesOfDate(LocalDate.parse(date));
+    }
+
+    private List<ResponseTimeEntryModel> copyTimeEntriesOfDate(LocalDate date) {
 
         List<TimeEntryModel> timeEntries = getTimeEntriesOfDate(date);
         return timeEntries.stream()

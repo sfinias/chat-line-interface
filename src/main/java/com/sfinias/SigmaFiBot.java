@@ -6,19 +6,23 @@ import com.sfinias.model.ProjectModel;
 import com.sfinias.resource.CatResource;
 import com.sfinias.resource.MemeResource;
 import com.sfinias.resource.TogglResource;
+import com.sfinias.dialog.DialogSessionHandler;
 import io.quarkus.logging.Log;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendAnimation;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ForceReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -29,18 +33,18 @@ public class SigmaFiBot extends TelegramLongPollingBot {
     @ConfigProperty(name = "sigmafi.apikey")
     String apikey;
 
+    @ConfigProperty(name = "personal.id")
+    String personalId;
+
+    @Inject
     CatResource catResource;
-
+    @Inject
     MemeResource memeResource;
-
+    @Inject
     TogglResource togglResource;
 
-    public SigmaFiBot(CatResource catResource, MemeResource memeResource, TogglResource togglResource) {
-
-        this.catResource = catResource;
-        this.memeResource = memeResource;
-        this.togglResource = togglResource;
-    }
+    @Inject
+    DialogSessionHandler handler;
 
     @Override
     public String getBotToken() {
@@ -80,9 +84,18 @@ public class SigmaFiBot extends TelegramLongPollingBot {
             case "/options":
                 sendOptions(user);
                 break;
+            case "/t":
+                toggl(user);
+                break;
             case "/start":
-            default:
                 start(user);
+                break;
+            default:
+                if (handler.hasActiveSession(user)) {
+                    handler.addInput(user, command);
+                } else {
+                    start(user);
+                }
         }
     }
 
@@ -128,6 +141,45 @@ public class SigmaFiBot extends TelegramLongPollingBot {
             execute(sendMessage);
         } catch (TelegramApiException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void toggl(User user) {
+
+        handler.process(user);
+    }
+
+    public Integer sendClientRequest(long userId, String requestMessage, String placeholder) {
+
+        SendMessage sendMessage = SendMessage.builder()
+                .text(requestMessage)
+                .chatId(String.valueOf(userId))
+                .replyMarkup(ForceReplyKeyboard.builder()
+                        .forceReply(true)
+                        .inputFieldPlaceholder(placeholder)
+                        .build())
+                .build();
+        try {
+            Message message = execute(sendMessage);
+            return message.getMessageId();
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Integer sendMessage(long userId, String requestMessage) {
+
+        SendMessage sendMessage = SendMessage.builder()
+                .text(requestMessage)
+                .chatId(String.valueOf(userId))
+                .build();
+        try {
+            Message message = execute(sendMessage);
+            return message.getMessageId();
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
