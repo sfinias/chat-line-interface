@@ -1,8 +1,11 @@
 package com.sfinias.resource;
 
 import com.sfinias.SigmaFiBot;
+import java.util.Map;
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -44,5 +47,14 @@ public class BotResource {
     public Integer sendMessage(@QueryParam long userId, @QueryParam String message) {
 
         return this.bot.sendMessage(userId, message);
+    }
+
+    @POST
+    @Path("/options")
+    @Produces(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Integer sendOptions(long userId, String message, Map<String, String> options) {
+
+        return this.bot.sendKeyboardOptions(userId, message, options);
     }
 }

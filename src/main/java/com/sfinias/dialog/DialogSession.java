@@ -15,12 +15,15 @@ public class DialogSession {
 
     SessionStatus status = SessionStatus.ONGOING;
 
+    DialogIntent currentIntent;
+
     List<? extends AbstractStep> steps;
 
     public DialogSession(User user, ServiceContainer serviceContainer) {
 
         this.serviceContainer = serviceContainer;
         this.dataContainer = new DataContainer(user);
+        setIntent(DialogIntent.ASK_INTENT);
     }
 
     public void process() {
@@ -31,10 +34,7 @@ public class DialogSession {
                 .ifPresentOrElse(step -> {
                     step.process(serviceContainer, dataContainer);
                     status = step.getType() == StepType.CLIENT_REQUEST ? SessionStatus.WAITING : SessionStatus.ONGOING;
-                }, () -> {
-                    status = SessionStatus.COMPLETED;
-                    completeSession();
-                });
+                }, this::completeIntent);
     }
 
     public void addInput(String message) {
@@ -49,14 +49,22 @@ public class DialogSession {
                 });
     }
 
-    private void completeSession() {
+    private void completeIntent() {
 
-        serviceContainer.getBotResource().sendMessage(dataContainer.getUser().getId(), "Task has completed successfully");
+        if (dataContainer.getIntent() == this.currentIntent) {
+            status = SessionStatus.COMPLETED;
+            dataContainer.setIntent(null);
+            serviceContainer.getBotResource().sendMessage(dataContainer.getUser().getId(), "Task has completed successfully");
+        } else {
+            setIntent(dataContainer.getIntent());
+        }
     }
 
-    public void setTarget(DialogIntent target) {
+    public void setIntent(DialogIntent intent) {
 
-        this.steps = target.createNewSession();
+        this.currentIntent = intent;
+        dataContainer.setIntent(intent);
+        this.steps = intent.createDialogSteps();
     }
 
     public void clearTarget() {
@@ -66,7 +74,7 @@ public class DialogSession {
 
     public boolean hasNoTarget() {
 
-        return this.steps == null || this.steps.isEmpty();
+        return this.dataContainer.getIntent() == null;
     }
 
     enum SessionStatus {

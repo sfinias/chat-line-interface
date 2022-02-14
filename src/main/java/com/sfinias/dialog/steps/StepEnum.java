@@ -5,7 +5,10 @@ import java.util.function.Supplier;
 public enum StepEnum {
     ASK_APIKEY(ApikeyStep::new),
     SELECT_DATE(SelectDateStep::new),
-    COPY_TIME_ENTRY(CopyTimeEntryStep::new);
+    COPY_TIME_ENTRY(CopyTimeEntryStep::new),
+    CHOOSE_PROJECT(ChooseProject::new),
+    RETRIEVE_PROJECTS(RetrieveProjects::new),
+    REQUEST_INTENT(RequestIntent::new);
 
     private final Supplier<? extends AbstractStep> supplier;
 

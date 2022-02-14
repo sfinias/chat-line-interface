@@ -1,21 +1,36 @@
 package com.sfinias.dialog;
 
+import com.sfinias.model.ProjectModel;
 import com.sfinias.model.TimeEntryModel;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 public class DataContainer {
 
     final User user;
 
+    DialogIntent intent;
     String apiKey;
     List<TimeEntryModel> oldEntries;
     LocalDate selectedDate;
+    Map<Integer, ProjectModel> projects;
+    ProjectModel selectedProject;
 
     public DataContainer(User user) {
 
         this.user = user;
+    }
+
+    public DialogIntent getIntent() {
+
+        return intent;
+    }
+
+    public void setIntent(DialogIntent intent) {
+
+        this.intent = intent;
     }
 
     public User getUser() {
@@ -51,5 +66,25 @@ public class DataContainer {
     public void setSelectedDate(LocalDate selectedDate) {
 
         this.selectedDate = selectedDate;
+    }
+
+    public Map<Integer, ProjectModel> getProjects() {
+
+        return projects;
+    }
+
+    public void setProjects(Map<Integer, ProjectModel> projects) {
+
+        this.projects = projects;
+    }
+
+    public ProjectModel getSelectedProject() {
+
+        return selectedProject;
+    }
+
+    public void setSelectedProject(ProjectModel selectedProject) {
+
+        this.selectedProject = selectedProject;
     }
 }

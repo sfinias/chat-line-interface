@@ -3,7 +3,7 @@ package com.sfinias.dialog.steps;
 import com.sfinias.dialog.DataContainer;
 import java.time.LocalDate;
 
-public class SelectDateStep extends ClientRequestStep {
+public class SelectDateStep extends SimpleClientRequest {
 
     public SelectDateStep() {
 

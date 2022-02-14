@@ -15,14 +15,17 @@ public class DialogSessionHandler {
 
     Map<User, DialogSession> dialogSessions = new HashMap<>();
 
+    public void createNewSession(User user) {
+
+        DialogSession session = new DialogSession(user, serviceContainer);
+        dialogSessions.put(user, session);
+        process(user);
+    }
 
     public void process(User user) {
 
         DialogSession session = dialogSessions.getOrDefault(user, new DialogSession(user, serviceContainer));
         dialogSessions.put(user, session);
-        if (session.hasNoTarget()) {
-            session.setTarget(DialogIntent.COPY_PAST_DAY);
-        }
         while (session.status == SessionStatus.ONGOING) {
             session.process();
         }
@@ -41,11 +44,5 @@ public class DialogSessionHandler {
 
         DialogSession session = dialogSessions.get(user);
         return session != null && !session.hasNoTarget();
-    }
-
-    public void completeSession(User user) {
-
-        this.dialogSessions.remove(user);
-
     }
 }

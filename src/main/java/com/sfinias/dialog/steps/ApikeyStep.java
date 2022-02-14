@@ -2,7 +2,7 @@ package com.sfinias.dialog.steps;
 
 import com.sfinias.dialog.DataContainer;
 
-public class ApikeyStep extends ClientRequestStep {
+public class ApikeyStep extends SimpleClientRequest {
 
     public ApikeyStep() {
 
