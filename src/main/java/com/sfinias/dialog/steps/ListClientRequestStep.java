@@ -9,7 +9,7 @@ public abstract class ListClientRequestStep extends ClientRequestStep{
 
     Function<DataContainer, Map<String, String>> function;
 
-    public ListClientRequestStep(String requestPrompt, Function<DataContainer, Map<String, String>> function) {
+    protected ListClientRequestStep(String requestPrompt, Function<DataContainer, Map<String, String>> function) {
 
         super(requestPrompt);
         this.function = function;

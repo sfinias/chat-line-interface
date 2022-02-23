@@ -1,6 +1,7 @@
 package com.sfinias.dialog.steps;
 
 import com.sfinias.dialog.DataContainer;
+import com.sfinias.dialog.ServiceContainer;
 
 public abstract class ClientRequestStep extends AbstractStep {
 
@@ -12,5 +13,14 @@ public abstract class ClientRequestStep extends AbstractStep {
         this.requestPrompt = requestPrompt;
     }
 
-    public abstract void feedInput(DataContainer container, String data);
+    public final void feedInput(DataContainer dataContainer, ServiceContainer serviceContainer, String data) {
+
+        try {
+            feedInput(dataContainer, data);
+        } catch (Exception e) {
+            serviceContainer.getBotResource().sendMessage(dataContainer.getUser().getId(), e.getMessage());
+        }
+    }
+
+    protected abstract void feedInput(DataContainer container, String data);
 }

@@ -44,7 +44,7 @@ public class DialogSession {
                 .findFirst()
                 .map(ClientRequestStep.class::cast)
                 .ifPresent(step -> {
-                    step.feedInput(dataContainer, message);
+                    step.feedInput(dataContainer, serviceContainer, message);
                     status = SessionStatus.ONGOING;
                 });
     }
