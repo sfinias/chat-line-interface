@@ -90,6 +90,13 @@ public class TogglResource {
 
     }
 
+    public ResponseTimeEntryModel createNewEntry(TimeEntryModel newTimeEntry) {
+
+        RequestTimeEntryModel requestTimeEntryModel = new RequestTimeEntryModel();
+        requestTimeEntryModel.setTimeEntry(newTimeEntry);
+        return togglService.createTimeEntry(encryptedToken(), requestTimeEntryModel);
+    }
+
     @GET
     @Path("/copy_entry/{date}")
     @Produces(MediaType.APPLICATION_JSON)

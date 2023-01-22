@@ -5,6 +5,7 @@ import static com.sfinias.dialog.steps.StepEnum.ASK_APIKEY;
 import static com.sfinias.dialog.steps.StepEnum.ASK_TIMES;
 import static com.sfinias.dialog.steps.StepEnum.CHOOSE_PROJECT;
 import static com.sfinias.dialog.steps.StepEnum.COPY_TIME_ENTRY;
+import static com.sfinias.dialog.steps.StepEnum.CREATE_TIME_ENTRY;
 import static com.sfinias.dialog.steps.StepEnum.REQUEST_INTENT;
 import static com.sfinias.dialog.steps.StepEnum.RETRIEVE_PROJECTS;
 import static com.sfinias.dialog.steps.StepEnum.SELECT_DATE;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 
 public enum DialogIntent {
     COPY_PAST_DAY(ASK_APIKEY, SELECT_DATE, COPY_TIME_ENTRY),
-    NEW_ENTRY(ASK_APIKEY, RETRIEVE_PROJECTS, CHOOSE_PROJECT, ADD_DESCRIPTION, ASK_TIMES),
+    NEW_ENTRY(ASK_APIKEY, RETRIEVE_PROJECTS, CHOOSE_PROJECT, ADD_DESCRIPTION, ASK_TIMES, CREATE_TIME_ENTRY),
     ASK_INTENT(REQUEST_INTENT);
 
     private final List<StepEnum> steps;
