@@ -2,7 +2,9 @@ package com.sfinias.dialog;
 
 import com.sfinias.model.ProjectModel;
 import com.sfinias.model.TimeEntryModel;
+import io.smallrye.mutiny.tuples.Tuple2;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import org.telegram.telegrambots.meta.api.objects.User;
@@ -18,6 +20,7 @@ public class DataContainer {
     Map<Integer, ProjectModel> projects;
     ProjectModel selectedProject;
     String description;
+    Tuple2<LocalTime, LocalTime> timeWindow;
 
     public DataContainer(User user) {
 
@@ -97,5 +100,15 @@ public class DataContainer {
     public void setDescription(String description) {
 
         this.description = description;
+    }
+
+    public Tuple2<LocalTime, LocalTime> getTimeWindow() {
+
+        return timeWindow;
+    }
+
+    public void setTimeWindow(Tuple2<LocalTime, LocalTime> timeWindow) {
+
+        this.timeWindow = timeWindow;
     }
 }
