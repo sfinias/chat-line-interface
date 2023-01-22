@@ -17,6 +17,7 @@ public class DataContainer {
     LocalDate selectedDate;
     Map<Integer, ProjectModel> projects;
     ProjectModel selectedProject;
+    String description;
 
     public DataContainer(User user) {
 
@@ -86,5 +87,15 @@ public class DataContainer {
     public void setSelectedProject(ProjectModel selectedProject) {
 
         this.selectedProject = selectedProject;
+    }
+
+    public String getDescription() {
+
+        return description;
+    }
+
+    public void setDescription(String description) {
+
+        this.description = description;
     }
 }

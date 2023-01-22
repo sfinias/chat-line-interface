@@ -8,6 +8,7 @@ public enum StepEnum {
     COPY_TIME_ENTRY(CopyTimeEntryStep::new),
     CHOOSE_PROJECT(ChooseProject::new),
     RETRIEVE_PROJECTS(RetrieveProjects::new),
+    ADD_DESCRIPTION(AddDescription::new),
     REQUEST_INTENT(RequestIntent::new);
 
     private final Supplier<? extends AbstractStep> supplier;
