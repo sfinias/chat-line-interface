@@ -5,6 +5,7 @@ import com.sfinias.resource.TogglResource;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ITypeConverter;
@@ -36,9 +37,9 @@ public class TogglCommand implements Callable<String> {
             description = "Copies the entry of a past date")
     public String copy(
             @Option(names = {"-t", "--target-date"}, description = "Date which is copied, format: d-M-yyyy", required = true) LocalDate targetDay,
-            @Option(names = {"-n", "--new-day"}, description = "Date for new entry, format: d-M-yyyy, default: current day") LocalDate newDay) {
+            @Option(names = {"-n", "--new-day"}, description = "Date for new entry, format: d-M-yyyy, default: current day") Optional<LocalDate> newDay) {
 
-        List<TogglTimeEntry> newEntries = this.togglResource.copyTimeEntriesOfDate(targetDay.toString(), (newDay != null ? newDay : LocalDate.now()).toString());
+        List<TogglTimeEntry> newEntries = this.togglResource.copyTimeEntriesOfDate(targetDay.toString(), newDay.orElseGet(LocalDate::now).toString());
         return "Created following entries\n" + newEntries;
     }
 }
