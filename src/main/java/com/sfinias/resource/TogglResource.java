@@ -1,5 +1,6 @@
 package com.sfinias.resource;
 
+import com.sfinias.dto.TogglTimeEntry;
 import com.sfinias.model.ProjectModel;
 import com.sfinias.model.RequestTimeEntryModel;
 import com.sfinias.model.ResponseTimeEntryModel;
@@ -102,21 +103,21 @@ public class TogglResource {
     @GET
     @Path("/copy_entry/{date}")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<ResponseTimeEntryModel> copyTimeEntriesOfDate(@PathParam String date) {
+    public List<TogglTimeEntry> copyTimeEntriesOfDate(@PathParam String dateToBeCopied, @PathParam String targetDate) {
 
-        return copyTimeEntriesOfDate(LocalDate.parse(date));
+        return copyTimeEntriesOfDate(LocalDate.parse(dateToBeCopied), LocalDate.parse(targetDate));
     }
 
-    private List<ResponseTimeEntryModel> copyTimeEntriesOfDate(LocalDate date) {
+    private List<TogglTimeEntry> copyTimeEntriesOfDate(LocalDate dateToBeCopied, LocalDate targetDate) {
 
-        List<TimeEntryModel> timeEntries = getTimeEntriesOfDate(date);
+        List<TimeEntryModel> timeEntries = getTimeEntriesOfDate(dateToBeCopied);
         return timeEntries.stream()
                 .map(timeEntry -> {
                     TimeEntryModel newTimeEntry = new TimeEntryModel();
                     newTimeEntry.setDescription(timeEntry.getDescription());
                     newTimeEntry.setDuration(timeEntry.getDuration());
                     newTimeEntry.setBillable(timeEntry.isBillable());
-                    newTimeEntry.setStart(ZonedDateTime.of(LocalDate.now(), ZonedDateTime.ofInstant(timeEntry.getStart(), ZoneId.systemDefault()).toLocalTime(), ZoneId.systemDefault()).toInstant());
+                    newTimeEntry.setStart(ZonedDateTime.of(targetDate, ZonedDateTime.ofInstant(timeEntry.getStart(), ZoneId.systemDefault()).toLocalTime(), ZoneId.systemDefault()).toInstant());
                     newTimeEntry.setPid(timeEntry.getPid());
                     newTimeEntry.setCreatedWith("SigmaFiBot");
                     RequestTimeEntryModel requestTimeEntryModel = new RequestTimeEntryModel();
@@ -124,7 +125,10 @@ public class TogglResource {
                     return requestTimeEntryModel;
                 })
                 .map(newTimeEntry -> togglService.createTimeEntry(encryptedToken(), newTimeEntry))
+                .map(ResponseTimeEntryModel::getData)
+                .map(response -> new TogglTimeEntry(response.getDescription(), "Project Name", response.getStart().atZone(ZoneId.systemDefault()), response.getStop().atZone(ZoneId.systemDefault())))
                 .collect(Collectors.toList());
+
     }
 
     private String encryptedToken() {

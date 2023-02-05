@@ -1,5 +1,7 @@
 package com.sfinias;
 
+import static com.sfinias.cli.TogglCommand.DATE_CONVERTER;
+
 import com.sfinias.cli.CatCommand;
 import com.sfinias.cli.ParentCommand;
 import com.sfinias.cli.TogglCommand;
@@ -8,6 +10,10 @@ import com.sfinias.resource.TogglResource;
 import io.quarkus.logging.Log;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -21,6 +27,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import picocli.CommandLine;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.ParseResult;
 
 @ApplicationScoped
@@ -64,34 +71,35 @@ public class SigmaFiBot extends TelegramLongPollingBot {
             CommandLine cmd = new CommandLine(new ParentCommand())
                     .addSubcommand(new TogglCommand(togglResource))
                     .addSubcommand(new CatCommand(catResource))
-                    .setOut(writer).setErr(writer);
+                    .setOut(writer).setErr(writer)
+                    .registerConverter(LocalDate.class, DATE_CONVERTER);
             cmd.execute(command.split(" "));
             if (out.toString().length() != 0) {
-                sendMessage(user.getId(), out.toString());
+                sendReply(user, out.toString());
             }
-            String executionResult = cmd.getExecutionResult();
-            if (executionResult != null) {
-                if (executionResult.endsWith(".jpg") || executionResult.endsWith(".gif")) {
-                    sendMediaResponse(user, executionResult);
-                } else {
-                    sendMessage(user.getId(), executionResult);
-                }
-            }
-            ParseResult parseResult = cmd.getParseResult();
-            if (parseResult.subcommand() != null) {
-                CommandLine sub = parseResult.subcommand().commandSpec().commandLine();
-                String subResult = sub.getExecutionResult();
-                if (subResult != null) {
-                    if (subResult.endsWith(".jpg") || subResult.endsWith(".gif")) {
-                        sendMediaResponse(user, subResult);
-                    } else {
-                        sendMessage(user.getId(), subResult);
-                    }
-                }
-            }
+            extractedMessages(cmd).forEach(reply -> sendReply(user, reply));
         } catch (Exception e) {
             e.printStackTrace();
             sendMessage(user.getId(), e.getMessage());
+        }
+    }
+
+    private List<String> extractedMessages(CommandLine cmd) {
+
+        List<String> results = new ArrayList<>();
+        while (cmd != null) {
+            Optional.ofNullable(cmd.getExecutionResult()).map(String.class::cast).ifPresent(results::add);
+            cmd = Optional.ofNullable(cmd.getParseResult()).map(ParseResult::subcommand).map(ParseResult::commandSpec).map(CommandSpec::commandLine).orElse(null);
+        }
+        return results;
+    }
+
+    public void sendReply(User user, String reply) {
+
+        if (reply.endsWith(".jpg") || reply.endsWith(".gif")) {
+            sendMediaResponse(user, reply);
+        } else {
+            sendMessage(user.getId(), reply);
         }
     }
 
