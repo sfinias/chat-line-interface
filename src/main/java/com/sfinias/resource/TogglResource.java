@@ -6,8 +6,10 @@ import com.sfinias.model.ResponseTimeEntryModel;
 import com.sfinias.model.TimeEntryModel;
 import com.sfinias.service.TogglService;
 import io.quarkus.logging.Log;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Base64;
@@ -86,8 +88,8 @@ public class TogglResource {
 
     public List<TimeEntryModel> getTimeEntriesOfDate(LocalDate date) {
 
-        return togglService.getTimeEntries(encryptedToken(), date.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant(), date.plusDays(1).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
-
+        Instant start = date.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
+        return togglService.getTimeEntries(encryptedToken(), start, start.plus(Period.ofDays(1)));
     }
 
     public ResponseTimeEntryModel createNewEntry(TimeEntryModel newTimeEntry) {

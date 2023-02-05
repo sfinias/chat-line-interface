@@ -1,17 +1,13 @@
 package com.sfinias;
 
-import com.sfinias.model.CatModel;
-import com.sfinias.model.MemeModel;
-import com.sfinias.model.ProjectModel;
+import com.sfinias.cli.CatCommand;
+import com.sfinias.cli.ParentCommand;
+import com.sfinias.cli.TogglCommand;
 import com.sfinias.resource.CatResource;
-import com.sfinias.resource.MemeResource;
 import com.sfinias.resource.TogglResource;
-import com.sfinias.dialog.DialogSessionHandler;
 import io.quarkus.logging.Log;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -19,15 +15,13 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendAnimation;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ForceReplyKeyboard;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import picocli.CommandLine;
+import picocli.CommandLine.ParseResult;
 
 @ApplicationScoped
 public class SigmaFiBot extends TelegramLongPollingBot {
@@ -35,18 +29,11 @@ public class SigmaFiBot extends TelegramLongPollingBot {
     @ConfigProperty(name = "sigmafi.apikey")
     String apikey;
 
-    @ConfigProperty(name = "personal.id")
-    String personalId;
-
     @Inject
     CatResource catResource;
-    @Inject
-    MemeResource memeResource;
-    @Inject
-    TogglResource togglResource;
 
     @Inject
-    DialogSessionHandler handler;
+    TogglResource togglResource;
 
     @Override
     public String getBotToken() {
@@ -63,198 +50,62 @@ public class SigmaFiBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
 
         User user = extractUser(update);
-
-
         if (update.hasMessage()) {
             handleNewMessage(user, update.getMessage());
-        } else if (update.hasCallbackQuery()) {
-            handleCallback(user, update.getCallbackQuery());
         }
-
     }
 
     private void handleNewMessage(User user, Message message) {
 
         Log.info(user + ": " + message.getText());
         String command = message.getText();
-        switch (command) {
-            case "/cat":
-                sendCat(user);
-                break;
-            case "/catgif":
-                sendCatGif(user);
-                break;
-            case "/meme":
-                sendMeme(user);
-                break;
-            case "/dankmeme":
-                sendDankMeme(user);
-                break;
-            case "/options":
-                sendOptions(user);
-                break;
-            case "/t":
-                toggl(user);
-                break;
-            case "/start":
-                start(user);
-                break;
-            default:
-                if (handler.hasActiveSession(user)) {
-                    handler.addInput(user, command);
-                } else {
-                    start(user);
-                }
-        }
-    }
-
-    private void handleCallback(User user, CallbackQuery callbackQuery) {
-
-        if (handler.hasActiveSession(user)) {
-            handler.addInput(user, callbackQuery.getData());
-        }
-    }
-
-    private void start(User user) {
-
-        SendMessage reply = SendMessage.builder()
-                .text("Hi " + user.getFirstName() + ", only option right now is /cat")
-                .chatId(String.valueOf(user.getId()))
-                .build();
-        try {
-            execute(reply);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void sendOptions(User user) {
-
-        String answer = "Choose one of the projects";
-        List<InlineKeyboardButton> projects = togglResource.getLunatechProjects().stream()
-                .map(ProjectModel::getName)
-                .map(projectName -> InlineKeyboardButton.builder().text(projectName).callbackData(projectName).build())
-                .collect(Collectors.toList());
-        List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
-        List<InlineKeyboardButton> tempList = new ArrayList<>();
-        for (int i = 0; i < projects.size(); i++) {
-            InlineKeyboardButton project = projects.get(i);
-            tempList.add(project);
-            if (tempList.size() == 2 || i + 1 == projects.size()) {
-                buttons.add(tempList);
-                tempList = new ArrayList<>();
+        try (StringWriter out = new StringWriter();
+                PrintWriter writer = new PrintWriter(out)) {
+            CommandLine cmd = new CommandLine(new ParentCommand())
+                    .addSubcommand(new TogglCommand(togglResource))
+                    .addSubcommand(new CatCommand(catResource))
+                    .setOut(writer).setErr(writer);
+            cmd.execute(command.split(" "));
+            if (out.toString().length() != 0) {
+                sendMessage(user.getId(), out.toString());
             }
+            String executionResult = cmd.getExecutionResult();
+            if (executionResult != null) {
+                if (executionResult.endsWith(".jpg") || executionResult.endsWith(".gif")) {
+                    sendMediaResponse(user, executionResult);
+                } else {
+                    sendMessage(user.getId(), executionResult);
+                }
+            }
+            ParseResult parseResult = cmd.getParseResult();
+            if (parseResult.subcommand() != null) {
+                CommandLine sub = parseResult.subcommand().commandSpec().commandLine();
+                String subResult = sub.getExecutionResult();
+                if (subResult != null) {
+                    if (subResult.endsWith(".jpg") || subResult.endsWith(".gif")) {
+                        sendMediaResponse(user, subResult);
+                    } else {
+                        sendMessage(user.getId(), subResult);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendMessage(user.getId(), e.getMessage());
         }
-        InlineKeyboardMarkup markupInline = InlineKeyboardMarkup.builder()
-                .keyboard(buttons)
-                .build();
+    }
+
+    public void sendMessage(long userId, String requestMessage) {
+
         SendMessage sendMessage = SendMessage.builder()
-                .text(answer)
-                .chatId(String.valueOf(user.getId()))
-                .replyMarkup(markupInline)
+                .text(requestMessage)
+                .chatId(String.valueOf(userId))
                 .build();
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
-    }
-
-    public Integer sendKeyboardOptions(long userId, String requestMessage, Map<String, String> options) {
-
-        List<InlineKeyboardButton> buttons = options.entrySet().stream()
-                .map(entry -> InlineKeyboardButton.builder().callbackData(entry.getKey()).text(entry.getValue()).build())
-                .collect(Collectors.toList());
-        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
-        List<InlineKeyboardButton> tempList = new ArrayList<>();
-        for (int i = 0; i < buttons.size(); i++) {
-            InlineKeyboardButton project = buttons.get(i);
-            tempList.add(project);
-            if (tempList.size() == 2 || i + 1 == buttons.size()) {
-                rows.add(tempList);
-                tempList = new ArrayList<>();
-            }
-        }
-        InlineKeyboardMarkup markupInline = InlineKeyboardMarkup.builder()
-                .keyboard(rows)
-                .build();
-        SendMessage sendMessage = SendMessage.builder()
-                .text(requestMessage)
-                .chatId(String.valueOf(userId))
-                .replyMarkup(markupInline)
-                .build();
-        try {
-            return execute(sendMessage).getMessageId();
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    private void toggl(User user) {
-
-        handler.createNewSession(user);
-    }
-
-    public Integer sendClientRequest(long userId, String requestMessage, String placeholder) {
-
-        return sendMessage(userId, requestMessage, placeholder, false);
-    }
-
-    public Integer sendMessage(long userId, String requestMessage) {
-
-        return sendMessage(userId, requestMessage, null, false);
-    }
-
-    private Integer sendMessage(long userId, String requestMessage, String placeholder, boolean isReply) {
-
-        SendMessage sendMessage = SendMessage.builder()
-                .text(requestMessage)
-                .chatId(String.valueOf(userId))
-                .replyMarkup(ForceReplyKeyboard.builder()
-                        .forceReply(isReply)
-                        .inputFieldPlaceholder(placeholder)
-                        .build())
-                .build();
-        try {
-            Message message = execute(sendMessage);
-            return message.getMessageId();
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    private void sendCat(User user) {
-
-        CatModel cat = catResource.getRandomCat();
-        Log.info("Cat received: " + cat);
-        String url = cat.getUrl();
-        sendMediaResponse(user, url);
-    }
-
-    private void sendCatGif(User user) {
-
-        CatModel cat = catResource.getRandomCatGif();
-        Log.info("Cat gif received: " + cat);
-        String url = cat.getUrl();
-        sendMediaResponse(user, url);
-    }
-
-    private void sendMeme(User user) {
-
-        MemeModel meme = memeResource.getRandomMeme();
-        Log.info("Meme received: " + meme);
-        String url = meme.getUrl();
-        sendMediaResponse(user, url);
-    }
-
-    private void sendDankMeme(User user) {
-
-        MemeModel meme = memeResource.getRandomDankMeme();
-        Log.info("Dank Meme received: " + meme);
-        String url = meme.getUrl();
-        sendMediaResponse(user, url);
     }
 
     private void sendMediaResponse(User user, String url) {
