@@ -1,10 +1,9 @@
 package com.sfinias.service;
 
-import com.sfinias.model.ProjectModel;
 import com.sfinias.model.RequestTimeEntryModel;
-import com.sfinias.model.ResponseTimeEntryModel;
-import com.sfinias.model.TimeEntryModel;
-import java.time.Instant;
+import com.sfinias.model.TogglProjectModel;
+import com.sfinias.model.TogglTimeEntryModel;
+import java.time.LocalDate;
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -21,20 +20,20 @@ import org.jboss.resteasy.annotations.jaxrs.QueryParam;
 public interface TogglService {
 
     @GET
-    @Path("/workspaces/{wid}/projects")
+    @Path("/workspaces/{workspace_id}/projects")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    List<ProjectModel> getProjectsFromWorkspace(@PathParam long wid, @HeaderParam("authorization") String token);
+    List<TogglProjectModel> getProjectsFromWorkspace(@HeaderParam("authorization") String token, @PathParam("workspace_id") long workspaceId);
 
     @GET
-    @Path("/time_entries")
+    @Path("/me/time_entries")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    List<TimeEntryModel> getTimeEntries(@HeaderParam("authorization") String token, @QueryParam("start_date") Instant startDate, @QueryParam("end_date") Instant endDate);
+    List<TogglTimeEntryModel> getTimeEntries(@HeaderParam("authorization") String token, @QueryParam("start_date") LocalDate startDate, @QueryParam("end_date") LocalDate endDate);
 
     @POST
-    @Path("/time_entries")
+    @Path("/workspaces/{workspace_id}/time_entries")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    ResponseTimeEntryModel createTimeEntry(@HeaderParam("authorization") String token, RequestTimeEntryModel timeEntryModel);
+    TogglTimeEntryModel createTimeEntry(@HeaderParam("authorization") String token, @PathParam("workspace_id") long workspaceId, RequestTimeEntryModel timeEntryModel);
 }

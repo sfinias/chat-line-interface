@@ -1,13 +1,12 @@
 package com.sfinias.resource;
 
 import com.sfinias.dto.TogglTimeEntry;
-import com.sfinias.model.ProjectModel;
 import com.sfinias.model.RequestTimeEntryModel;
-import com.sfinias.model.ResponseTimeEntryModel;
-import com.sfinias.model.TimeEntryModel;
+import com.sfinias.model.TogglProjectModel;
+import com.sfinias.model.TogglTimeEntryModel;
 import com.sfinias.service.TogglService;
 import io.quarkus.logging.Log;
-import java.time.Instant;
+import io.smallrye.mutiny.tuples.Tuple2;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
@@ -18,6 +17,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -44,9 +44,9 @@ public class TogglResource {
     @GET
     @Path("/projects")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<ProjectModel> getProjectsFromWorkspace(@QueryParam long wid) {
+    public List<TogglProjectModel> getProjectsFromWorkspace(@QueryParam long wid) {
 
-        List<ProjectModel> projects = togglService.getProjectsFromWorkspace(wid, encryptedToken());
+        List<TogglProjectModel> projects = togglService.getProjectsFromWorkspace(encryptedToken(), wid);
         Log.debug("Projects Received: " + projects);
         return projects;
     }
@@ -54,27 +54,19 @@ public class TogglResource {
     @GET
     @Path("/lprojects")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<ProjectModel> getLunatechProjects() {
+    public List<TogglProjectModel> getLunatechProjects() {
 
         return getProjectsFromWorkspace(wid);
     }
 
     @GET
-    @Path("/lprojects/main")
-    @Produces(MediaType.APPLICATION_JSON)
-    public List<ProjectModel> getMainLunatechProjects() {
-
-        return getLunatechProjects().stream().filter(ProjectModel::isMain).collect(Collectors.toList());
-    }
-
-    @GET
     @Path("/time")
     @Produces(MediaType.APPLICATION_JSON)
-    public Map<LocalDate, List<TimeEntryModel>> getTimeEntries() {
+    public Map<LocalDate, List<TogglTimeEntryModel>> getTimeEntries() {
 
-        List<TimeEntryModel> timeEntries = togglService.getTimeEntries(encryptedToken(), null, null);
+        List<TogglTimeEntryModel> timeEntries = togglService.getTimeEntries(encryptedToken(), null, null);
         return timeEntries.stream()
-                .collect(Collectors.toMap((TimeEntryModel timeEntryModel) -> LocalDateTime.ofInstant(timeEntryModel.getStop(), ZoneId.systemDefault()).toLocalDate(),
+                .collect(Collectors.toMap((TogglTimeEntryModel timeEntryModel) -> LocalDateTime.ofInstant(timeEntryModel.getStop(), ZoneId.systemDefault()).toLocalDate(),
                         List::of, (x, y) -> Stream.of(x, y).flatMap(Collection::stream).collect(Collectors.toList()),
                         () -> new TreeMap<>(Comparator.reverseOrder())));
     }
@@ -82,26 +74,23 @@ public class TogglResource {
     @GET
     @Path("/time/{date}")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<TimeEntryModel> getTimeEntriesOfDate(@PathParam String date) {
+    public List<TogglTimeEntryModel> getTimeEntriesOfDate(@PathParam String date) {
 
         return getTimeEntriesOfDate(LocalDate.parse(date));
     }
 
-    public List<TimeEntryModel> getTimeEntriesOfDate(LocalDate date) {
+    public List<TogglTimeEntryModel> getTimeEntriesOfDate(LocalDate date) {
 
-        Instant start = date.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
-        return togglService.getTimeEntries(encryptedToken(), start, start.plus(Period.ofDays(1)));
+        return togglService.getTimeEntries(encryptedToken(), date, date.plus(Period.ofDays(1)));
     }
 
-    public ResponseTimeEntryModel createNewEntry(TimeEntryModel newTimeEntry) {
+    public TogglTimeEntryModel createNewEntry(RequestTimeEntryModel newTimeEntry) {
 
-        RequestTimeEntryModel requestTimeEntryModel = new RequestTimeEntryModel();
-        requestTimeEntryModel.setTimeEntry(newTimeEntry);
-        return togglService.createTimeEntry(encryptedToken(), requestTimeEntryModel);
+        return togglService.createTimeEntry(encryptedToken(), newTimeEntry.getWorkspaceId(), newTimeEntry);
     }
 
     @GET
-    @Path("/copy_entry/{date}")
+    @Path("/copy_entry/{dateToBeCopied}/{targetDate}")
     @Produces(MediaType.APPLICATION_JSON)
     public List<TogglTimeEntry> copyTimeEntriesOfDate(@PathParam String dateToBeCopied, @PathParam String targetDate) {
 
@@ -110,25 +99,23 @@ public class TogglResource {
 
     private List<TogglTimeEntry> copyTimeEntriesOfDate(LocalDate dateToBeCopied, LocalDate targetDate) {
 
-        List<TimeEntryModel> timeEntries = getTimeEntriesOfDate(dateToBeCopied);
+        List<TogglTimeEntryModel> timeEntries = getTimeEntriesOfDate(dateToBeCopied);
         return timeEntries.stream()
                 .map(timeEntry -> {
-                    TimeEntryModel newTimeEntry = new TimeEntryModel();
+                    RequestTimeEntryModel newTimeEntry = new RequestTimeEntryModel();
                     newTimeEntry.setDescription(timeEntry.getDescription());
+                    newTimeEntry.setWorkspaceId(timeEntry.getWorkspaceId());
                     newTimeEntry.setDuration(timeEntry.getDuration());
                     newTimeEntry.setBillable(timeEntry.isBillable());
                     newTimeEntry.setStart(ZonedDateTime.of(targetDate, ZonedDateTime.ofInstant(timeEntry.getStart(), ZoneId.systemDefault()).toLocalTime(), ZoneId.systemDefault()).toInstant());
-                    newTimeEntry.setPid(timeEntry.getPid());
+                    newTimeEntry.setProjectId(timeEntry.getProjectId());
                     newTimeEntry.setCreatedWith("SigmaFiBot");
-                    RequestTimeEntryModel requestTimeEntryModel = new RequestTimeEntryModel();
-                    requestTimeEntryModel.setTimeEntry(newTimeEntry);
-                    return requestTimeEntryModel;
+                    return newTimeEntry;
                 })
-                .map(newTimeEntry -> togglService.createTimeEntry(encryptedToken(), newTimeEntry))
-                .map(ResponseTimeEntryModel::getData)
-                .map(response -> new TogglTimeEntry(response.getDescription(), "Project Name", response.getStart().atZone(ZoneId.systemDefault()), response.getStop().atZone(ZoneId.systemDefault())))
+                .map(newTimeEntry -> togglService.createTimeEntry(encryptedToken(), newTimeEntry.getWorkspaceId(), newTimeEntry))
+                .map(timeEntryResponse -> Tuple2.of(timeEntryResponse, getProjectsFromWorkspace(timeEntryResponse.getWorkspaceId()).stream().filter(project -> project.getId() == timeEntryResponse.getProjectId()).findFirst().orElse(null)))
+                .map(response -> new TogglTimeEntry(response.getItem1().getDescription(), Optional.ofNullable(response.getItem2()).map(TogglProjectModel::getName).orElse(null), response.getItem1().getStart().atZone(ZoneId.systemDefault()), response.getItem1().getStop().atZone(ZoneId.systemDefault())))
                 .collect(Collectors.toList());
-
     }
 
     private String encryptedToken() {
