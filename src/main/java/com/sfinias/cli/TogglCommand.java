@@ -1,5 +1,7 @@
 package com.sfinias.cli;
 
+import com.sfinias.SigmaFiBot.ResponseType;
+import com.sfinias.dto.SigmaFiBotResponse;
 import com.sfinias.dto.TogglTimeEntry;
 import com.sfinias.resource.TogglResource;
 import java.time.LocalDate;
@@ -28,11 +30,11 @@ public class TogglCommand {
 
     @Command(name = "copy", mixinStandardHelpOptions = true, version = "toggl 1.0.0",
             description = "Copies the entry of a past date")
-    public String copy(
+    public SigmaFiBotResponse copy(
             @Option(names = {"-t", "--target-date"}, description = "Date which is copied, format: d-M-yyyy", required = true) LocalDate targetDay,
             @Option(names = {"-n", "--new-day"}, description = "Date for new entry, format: d-M-yyyy, default: current day") Optional<LocalDate> newDay) {
 
         List<TogglTimeEntry> newEntries = this.togglResource.copyTimeEntriesOfDate(targetDay.toString(), newDay.orElseGet(LocalDate::now).toString());
-        return "Created following entries\n" + newEntries;
+        return new SigmaFiBotResponse(ResponseType.TEXT, "Created following entries\n" + newEntries);
     }
 }

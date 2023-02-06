@@ -1,6 +1,7 @@
 package com.sfinias.cli;
 
-import com.sfinias.resource.CatResource;
+import com.sfinias.SigmaFiBot.ResponseType;
+import com.sfinias.dto.SigmaFiBotResponse;
 import com.sfinias.resource.MemeResource;
 import java.util.concurrent.Callable;
 import picocli.CommandLine.Command;
@@ -8,7 +9,7 @@ import picocli.CommandLine.Option;
 
 @Command(name = "meme", mixinStandardHelpOptions = true, version = "meme 1.0.0",
         description = "Returns memes")
-public class MemeCommand implements Callable<String> {
+public class MemeCommand implements Callable<SigmaFiBotResponse> {
 
     private final MemeResource memeResource;
 
@@ -21,8 +22,9 @@ public class MemeCommand implements Callable<String> {
     }
 
     @Override
-    public String call() {
+    public SigmaFiBotResponse call() {
 
-        return (dank ? memeResource.getRandomDankMeme() : memeResource.getRandomMeme()).getUrl();
+        String url = (dank ? memeResource.getRandomDankMeme() : memeResource.getRandomMeme()).getUrl();
+        return new SigmaFiBotResponse(ResponseType.IMAGE, url);
     }
 }
