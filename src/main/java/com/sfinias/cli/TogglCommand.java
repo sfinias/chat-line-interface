@@ -6,14 +6,13 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.Callable;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ITypeConverter;
 import picocli.CommandLine.Option;
 
 @Command(name = "toggl", mixinStandardHelpOptions = true, version = "toggl 1.0.0",
         description = "Interact with the Toggl API")
-public class TogglCommand implements Callable<String> {
+public class TogglCommand {
 
     private final TogglResource togglResource;
 
@@ -25,12 +24,6 @@ public class TogglCommand implements Callable<String> {
     public TogglCommand(TogglResource togglResource) {
 
         this.togglResource = togglResource;
-    }
-
-    @Override
-    public String call() throws Exception {
-
-        return "Invalid command";
     }
 
     @Command(name = "copy", mixinStandardHelpOptions = true, version = "toggl 1.0.0",

@@ -3,9 +3,11 @@ package com.sfinias;
 import static com.sfinias.cli.TogglCommand.DATE_CONVERTER;
 
 import com.sfinias.cli.CatCommand;
+import com.sfinias.cli.MemeCommand;
 import com.sfinias.cli.ParentCommand;
 import com.sfinias.cli.TogglCommand;
 import com.sfinias.resource.CatResource;
+import com.sfinias.resource.MemeResource;
 import com.sfinias.resource.TogglResource;
 import io.quarkus.logging.Log;
 import java.io.PrintWriter;
@@ -42,6 +44,9 @@ public class SigmaFiBot extends TelegramLongPollingBot {
     @Inject
     TogglResource togglResource;
 
+    @Inject
+    MemeResource memeResource;
+
     @Override
     public String getBotToken() {
 
@@ -71,6 +76,7 @@ public class SigmaFiBot extends TelegramLongPollingBot {
             CommandLine cmd = new CommandLine(new ParentCommand())
                     .addSubcommand(new TogglCommand(togglResource))
                     .addSubcommand(new CatCommand(catResource))
+                    .addSubcommand(new MemeCommand(memeResource))
                     .setOut(writer).setErr(writer)
                     .registerConverter(LocalDate.class, DATE_CONVERTER);
             cmd.execute(command.split(" "));
@@ -96,7 +102,7 @@ public class SigmaFiBot extends TelegramLongPollingBot {
 
     public void sendReply(User user, String reply) {
 
-        if (reply.endsWith(".jpg") || reply.endsWith(".gif")) {
+        if (reply.endsWith(".jpg") || reply.endsWith(".gif") || reply.endsWith(".png")) {
             sendMediaResponse(user, reply);
         } else {
             sendMessage(user.getId(), reply);
