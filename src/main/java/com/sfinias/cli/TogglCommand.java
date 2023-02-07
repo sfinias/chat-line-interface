@@ -34,7 +34,7 @@ public class TogglCommand {
             @Option(names = {"-t", "--target-date"}, description = "Date which is copied, format: d-M-yyyy", required = true) LocalDate targetDay,
             @Option(names = {"-n", "--new-day"}, description = "Date for new entry, format: d-M-yyyy, default: current day") Optional<LocalDate> newDay) {
 
-        List<TogglTimeEntry> newEntries = this.togglResource.copyTimeEntriesOfDate(targetDay.toString(), newDay.orElseGet(LocalDate::now).toString());
+        List<TogglTimeEntry> newEntries = this.togglResource.copyTimeEntriesOfDate(targetDay, newDay.orElseGet(LocalDate::now));
         return new SigmaFiBotResponse(ResponseType.TEXT, "Created following entries\n" + newEntries);
     }
 }

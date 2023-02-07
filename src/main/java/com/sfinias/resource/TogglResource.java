@@ -8,20 +8,15 @@ import com.sfinias.service.TogglService;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.tuples.Tuple2;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Base64;
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -60,19 +55,7 @@ public class TogglResource {
     }
 
     @GET
-    @Path("/time")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Map<LocalDate, List<TogglTimeEntryModel>> getTimeEntries() {
-
-        List<TogglTimeEntryModel> timeEntries = togglService.getTimeEntries(encryptedToken(), null, null);
-        return timeEntries.stream()
-                .collect(Collectors.toMap((TogglTimeEntryModel timeEntryModel) -> LocalDateTime.ofInstant(timeEntryModel.getStop(), ZoneId.systemDefault()).toLocalDate(),
-                        List::of, (x, y) -> Stream.of(x, y).flatMap(Collection::stream).collect(Collectors.toList()),
-                        () -> new TreeMap<>(Comparator.reverseOrder())));
-    }
-
-    @GET
-    @Path("/time/{date}")
+    @Path("/entry/{date}")
     @Produces(MediaType.APPLICATION_JSON)
     public List<TogglTimeEntryModel> getTimeEntriesOfDate(@PathParam("date") LocalDate date) {
 
@@ -84,15 +67,10 @@ public class TogglResource {
         return togglService.createTimeEntry(encryptedToken(), newTimeEntry.getWorkspaceId(), newTimeEntry);
     }
 
-    @GET
-    @Path("/copy_entry/{dateToBeCopied}/{targetDate}")
+    @POST
+    @Path("/entry/copy/{dateToBeCopied}/{targetDate}")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<TogglTimeEntry> copyTimeEntriesOfDate(@PathParam("dateToBeCopied") String dateToBeCopied, @PathParam("targetDate") String targetDate) {
-
-        return copyTimeEntriesOfDate(LocalDate.parse(dateToBeCopied), LocalDate.parse(targetDate));
-    }
-
-    private List<TogglTimeEntry> copyTimeEntriesOfDate(LocalDate dateToBeCopied, LocalDate targetDate) {
+    public List<TogglTimeEntry> copyTimeEntriesOfDate(@PathParam("dateToBeCopied") LocalDate dateToBeCopied, @PathParam("targetDate") LocalDate targetDate) {
 
         List<TogglTimeEntryModel> timeEntries = getTimeEntriesOfDate(dateToBeCopied);
         return timeEntries.stream()
