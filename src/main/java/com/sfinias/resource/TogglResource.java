@@ -23,12 +23,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.jboss.resteasy.annotations.jaxrs.PathParam;
-import org.jboss.resteasy.annotations.jaxrs.QueryParam;
 
 @Path("/toggl")
 public class TogglResource {
@@ -44,7 +44,7 @@ public class TogglResource {
     @GET
     @Path("/projects")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<TogglProjectModel> getProjectsFromWorkspace(@QueryParam long wid) {
+    public List<TogglProjectModel> getProjectsFromWorkspace(@QueryParam("wid") long wid) {
 
         List<TogglProjectModel> projects = togglService.getProjectsFromWorkspace(encryptedToken(), wid);
         Log.debug("Projects Received: " + projects);
@@ -74,12 +74,7 @@ public class TogglResource {
     @GET
     @Path("/time/{date}")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<TogglTimeEntryModel> getTimeEntriesOfDate(@PathParam String date) {
-
-        return getTimeEntriesOfDate(LocalDate.parse(date));
-    }
-
-    public List<TogglTimeEntryModel> getTimeEntriesOfDate(LocalDate date) {
+    public List<TogglTimeEntryModel> getTimeEntriesOfDate(@PathParam("date") LocalDate date) {
 
         return togglService.getTimeEntries(encryptedToken(), date, date.plus(Period.ofDays(1)));
     }
@@ -92,7 +87,7 @@ public class TogglResource {
     @GET
     @Path("/copy_entry/{dateToBeCopied}/{targetDate}")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<TogglTimeEntry> copyTimeEntriesOfDate(@PathParam String dateToBeCopied, @PathParam String targetDate) {
+    public List<TogglTimeEntry> copyTimeEntriesOfDate(@PathParam("dateToBeCopied") String dateToBeCopied, @PathParam("targetDate") String targetDate) {
 
         return copyTimeEntriesOfDate(LocalDate.parse(dateToBeCopied), LocalDate.parse(targetDate));
     }
