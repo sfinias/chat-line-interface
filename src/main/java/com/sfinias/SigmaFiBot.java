@@ -10,6 +10,7 @@ import com.sfinias.dto.SigmaFiBotResponse;
 import com.sfinias.resource.CatResource;
 import com.sfinias.resource.MemeResource;
 import com.sfinias.resource.TogglResource;
+import com.sfinias.util.ExceptionHandler;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.tuples.Functions.Function3;
 import java.io.PrintWriter;
@@ -82,6 +83,7 @@ public class SigmaFiBot extends TelegramLongPollingBot {
                     .addSubcommand(new CatCommand(catResource))
                     .addSubcommand(new MemeCommand(memeResource))
                     .setOut(writer).setErr(writer)
+                    .setExecutionExceptionHandler(new ExceptionHandler())
                     .registerConverter(LocalDate.class, DATE_CONVERTER);
             cmd.execute(command.split(" "));
             if (out.toString().length() != 0) {

@@ -7,6 +7,7 @@ import com.sfinias.model.TogglProjectModel;
 import com.sfinias.model.TogglTimeEntryModel;
 import java.time.LocalDate;
 import java.util.List;
+import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -18,6 +19,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
+@Path("/api/v9")
+@ApplicationScoped
 @RegisterRestClient
 public interface TogglService {
 

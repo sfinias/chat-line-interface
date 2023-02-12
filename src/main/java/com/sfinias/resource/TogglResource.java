@@ -14,7 +14,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
@@ -87,8 +87,10 @@ public class TogglResource {
     @Produces(MediaType.APPLICATION_JSON)
     public List<TogglTimeEntry> copyTimeEntriesOfDate(@PathParam("dateToBeCopied") LocalDate dateToBeCopied, @PathParam("targetDate") LocalDate targetDate) {
 
+        Map<Integer, TogglProjectModel> projectsMap = getProjects(null).stream().collect(Collectors.toMap(TogglProjectModel::getId, x -> x));
         return getTimeEntriesOfDate(dateToBeCopied).stream()
                 .map(timeEntry -> {
+                    TogglProjectModel project = projectsMap.get(timeEntry.getProjectId());
                     RequestTimeEntryModel newTimeEntry = new RequestTimeEntryModel();
                     newTimeEntry.setDescription(timeEntry.getDescription());
                     newTimeEntry.setWorkspaceId(timeEntry.getWorkspaceId());
@@ -97,11 +99,10 @@ public class TogglResource {
                     newTimeEntry.setStart(ZonedDateTime.of(targetDate, ZonedDateTime.ofInstant(timeEntry.getStart(), ZoneId.systemDefault()).toLocalTime(), ZoneId.systemDefault()).toInstant());
                     newTimeEntry.setProjectId(timeEntry.getProjectId());
                     newTimeEntry.setCreatedWith("SigmaFiBot");
-                    return newTimeEntry;
+                    return Tuple2.of(project, newTimeEntry);
                 })
-                .map(newTimeEntry -> togglService.createTimeEntry(encryptedToken(), newTimeEntry.getWorkspaceId(), newTimeEntry))
-                .map(timeEntryResponse -> Tuple2.of(timeEntryResponse, getProjects(null).stream().filter(project -> project.getId() == timeEntryResponse.getProjectId()).findFirst().orElse(null)))
-                .map(response -> new TogglTimeEntry(response.getItem1().getDescription(), Optional.ofNullable(response.getItem2()).map(TogglProjectModel::getName).orElse(null), response.getItem1().getStart().atZone(ZoneId.systemDefault()), response.getItem1().getStop().atZone(ZoneId.systemDefault())))
+                .map(tuple -> tuple.mapItem2(this::createEntry))
+                .map(tuple -> new TogglTimeEntry(tuple.getItem2().getDescription(), tuple.getItem1().getName(), tuple.getItem2().getStart().atZone(ZoneId.systemDefault()), tuple.getItem2().getStop().atZone(ZoneId.systemDefault())))
                 .collect(Collectors.toList());
     }
 

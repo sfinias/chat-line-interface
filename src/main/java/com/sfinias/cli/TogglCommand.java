@@ -3,8 +3,11 @@ package com.sfinias.cli;
 import com.sfinias.SigmaFiBot.ResponseType;
 import com.sfinias.dto.SigmaFiBotResponse;
 import com.sfinias.dto.TogglTimeEntry;
+import com.sfinias.model.TogglCreateNewEntry;
 import com.sfinias.resource.TogglResource;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -36,5 +39,24 @@ public class TogglCommand {
 
         List<TogglTimeEntry> newEntries = this.togglResource.copyTimeEntriesOfDate(targetDay, newDay.orElseGet(LocalDate::now));
         return new SigmaFiBotResponse(ResponseType.TEXT, "Created following entries\n" + newEntries);
+    }
+
+    @Command(name = "create", mixinStandardHelpOptions = true, version = "toggl 1.0.0",
+            description = "Creates a new entry")
+    public SigmaFiBotResponse create(
+            @Option(names = {"-s", "--start"}, description = "Starting time of the entry, format: hh:mm", required = true) LocalTime start,
+            @Option(names = {"-e", "--end"}, description = "Ending time of the entry, format: hh:mm", required = true) LocalTime end,
+            @Option(names = {"-p", "--project"}, description = "Project name, does not have to post the whole name", required = true) String projectName,
+            @Option(names = {"-d", "--description"}, description = "Description of the new entry", required = true) String description,
+            @Option(names = {"-n", "--new-day"}, description = "Date for new entry, format: d-M-yyyy, default: current day") Optional<LocalDate> newDay) {
+
+        LocalDate date = newDay.orElseGet(LocalDate::now);
+        TogglCreateNewEntry newEntry = new TogglCreateNewEntry();
+        newEntry.setDescription(description);
+        newEntry.setProject(projectName);
+        newEntry.setStart(LocalDateTime.of(date, start));
+        newEntry.setEnd(LocalDateTime.of(date, end));
+        TogglTimeEntry createdEntry = this.togglResource.createNewEntry(newEntry);
+        return new SigmaFiBotResponse(ResponseType.TEXT, "Created following entry" + createdEntry);
     }
 }
