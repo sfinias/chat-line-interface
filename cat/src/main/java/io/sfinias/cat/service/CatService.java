@@ -10,12 +10,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-@Path("/images/search")
-@RegisterRestClient
+@Path("/v1")
+@RegisterRestClient(configKey = "cat-api")
 public interface CatService {
 
-
     @GET
+    @Path("/images/search")
     @Produces(APPLICATION_JSON)
     List<CatModel> getRandomCat(@QueryParam("mime_types")String type);
 }

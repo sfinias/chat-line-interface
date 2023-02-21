@@ -4,6 +4,7 @@ import static io.sfinias.telegram.cli.TogglCommand.DATE_CONVERTER;
 
 import io.quarkus.logging.Log;
 import io.sfinias.cat.resource.CatResource;
+import io.sfinias.cat.service.CatService;
 import io.sfinias.meme.resource.MemeResource;
 import io.sfinias.telegram.cli.CatCommand;
 import io.sfinias.telegram.cli.MemeCommand;
@@ -21,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
@@ -43,14 +43,18 @@ public class SigmaFiBot extends TelegramLongPollingBot {
     @ConfigProperty(name = "sigmafi.apikey")
     String apikey;
 
-    @Inject
-    CatResource catResource;
+    final CatResource catResource;
 
-    @Inject
-    TogglResource togglResource;
+    final TogglResource togglResource;
 
-    @Inject
-    MemeResource memeResource;
+    final MemeResource memeResource;
+
+    public SigmaFiBot(CatResource catResource, TogglResource togglResource, MemeResource memeResource) {
+
+        this.catResource = catResource;
+        this.togglResource = togglResource;
+        this.memeResource = memeResource;
+    }
 
     @Override
     public String getBotToken() {
@@ -74,6 +78,7 @@ public class SigmaFiBot extends TelegramLongPollingBot {
 
     private void handleNewMessage(User user, Message message) {
 
+        CatService catService;
         Log.info(user + ": " + message.getText());
         String command = message.getText();
         try (StringWriter out = new StringWriter();

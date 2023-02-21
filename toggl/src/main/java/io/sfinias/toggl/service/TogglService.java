@@ -7,7 +7,7 @@ import io.sfinias.toggl.model.TogglProjectModel;
 import io.sfinias.toggl.model.TogglTimeEntryModel;
 import java.time.LocalDate;
 import java.util.List;
-import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -20,8 +20,8 @@ import javax.ws.rs.core.MediaType;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 @Path("/api/v9")
-@ApplicationScoped
-@RegisterRestClient
+@Singleton
+@RegisterRestClient(configKey = "toggl-api")
 public interface TogglService {
 
     @GET

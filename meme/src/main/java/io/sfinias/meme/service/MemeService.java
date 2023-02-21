@@ -10,7 +10,7 @@ import javax.ws.rs.Produces;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 @Path("/gimme")
-@RegisterRestClient
+@RegisterRestClient(configKey = "meme-api")
 public interface MemeService {
 
     @GET
