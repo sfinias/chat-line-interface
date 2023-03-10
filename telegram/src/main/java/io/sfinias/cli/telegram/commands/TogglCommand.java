@@ -26,6 +26,8 @@ public class TogglCommand {
     @Option(names = {"-a", "--apikey"}, description = "Toggl API key")
     private String apiKey;
 
+    private static final String NEW_ENTRIES_MESSAGE = "Created following entries\n";
+
     public TogglCommand(TogglResource togglResource) {
 
         this.togglResource = togglResource;
@@ -38,7 +40,7 @@ public class TogglCommand {
             @Option(names = {"-n", "--new-day"}, description = "Date for new entry, format: d-M-yyyy, default: current day") Optional<LocalDate> newDay) {
 
         List<TogglTimeEntry> newEntries = this.togglResource.copyTimeEntriesOfDate(targetDay, newDay.orElseGet(LocalDate::now));
-        return new SigmaFiBotResponse(ResponseType.TEXT, "Created following entries\n" + newEntries);
+        return new SigmaFiBotResponse(ResponseType.TEXT, NEW_ENTRIES_MESSAGE + newEntries);
     }
 
     @Command(name = "create", mixinStandardHelpOptions = true, version = "toggl 1.0.0",
@@ -54,6 +56,6 @@ public class TogglCommand {
         LocalDate date = newDay.orElseGet(LocalDate::now);
         TogglCreateNewEntry newEntry = new TogglCreateNewEntry(description, projectName, LocalDateTime.of(date, start), LocalDateTime.of(date, end));
         TogglTimeEntry createdEntry = this.togglResource.createNewEntry(newEntry);
-        return new SigmaFiBotResponse(ResponseType.TEXT, "Created following entry" + createdEntry);
+        return new SigmaFiBotResponse(ResponseType.TEXT, NEW_ENTRIES_MESSAGE + createdEntry);
     }
 }

@@ -39,26 +39,18 @@ import picocli.CommandLine.ParseResult;
 @ApplicationScoped
 public class SigmaFiBot extends TelegramLongPollingBot {
 
-    @ConfigProperty(name = "sigmafi.apikey")
-    String apikey;
-
     final CatResource catResource;
 
     final TogglResource togglResource;
 
     final MemeResource memeResource;
 
-    public SigmaFiBot(CatResource catResource, TogglResource togglResource, MemeResource memeResource) {
+    public SigmaFiBot(CatResource catResource, TogglResource togglResource, MemeResource memeResource, @ConfigProperty(name = "sigmafi.apikey") final String apikey) {
 
+        super(apikey);
         this.catResource = catResource;
         this.togglResource = togglResource;
         this.memeResource = memeResource;
-    }
-
-    @Override
-    public String getBotToken() {
-
-        return apikey;
     }
 
     @Override
@@ -108,16 +100,17 @@ public class SigmaFiBot extends TelegramLongPollingBot {
         }
         return results;
     }
+
     private User extractUser(Update update) {
 
         return update.hasMessage() ? update.getMessage().getFrom() : update.getCallbackQuery().getFrom();
     }
 
     public enum ResponseType {
-        TEXT((user, text) ->  SendMessage.builder()
-                    .text(text)
-                    .chatId(String.valueOf(user.getId()))
-                    .build(),
+        TEXT((user, text) -> SendMessage.builder()
+                .text(text)
+                .chatId(String.valueOf(user.getId()))
+                .build(),
                 (bot, message) -> {
                     try {
                         return bot.execute(message);
