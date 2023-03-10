@@ -6,39 +6,19 @@ import java.util.List;
 public class CatModel {
 
 	@JsonProperty("width")
-	private int width;
+	public int width;
 
 	@JsonProperty("id")
-	private String id;
+	public String id;
 
 	@JsonProperty("url")
-	private String url;
+	public String url;
 
 	@JsonProperty("breeds")
-	private List<Object> breeds;
+	public List<Object> breeds;
 
 	@JsonProperty("height")
-	private int height;
-
-	public int getWidth(){
-		return width;
-	}
-
-	public String getId(){
-		return id;
-	}
-
-	public String getUrl(){
-		return url;
-	}
-
-	public List<Object> getBreeds(){
-		return breeds;
-	}
-
-	public int getHeight(){
-		return height;
-	}
+	public int height;
 
 	@Override
 	public String toString() {

@@ -3,8 +3,8 @@ package io.sfinias.cli.telegram.commands;
 import io.sfinias.cli.telegram.SigmaFiBot.ResponseType;
 import io.sfinias.cli.telegram.dto.SigmaFiBotResponse;
 import io.sfinias.cli.toggl.TogglResource;
+import io.sfinias.cli.toggl.dto.TogglCreateNewEntry;
 import io.sfinias.cli.toggl.dto.TogglTimeEntry;
-import io.sfinias.cli.toggl.model.TogglCreateNewEntry;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -48,14 +48,11 @@ public class TogglCommand {
             @Option(names = {"-e", "--end"}, description = "Ending time of the entry, format: hh:mm", required = true) LocalTime end,
             @Option(names = {"-p", "--project"}, description = "Project name, does not have to post the whole name", required = true) String projectName,
             @Option(names = {"-d", "--description"}, description = "Description of the new entry", required = true) String description,
-            @Option(names = {"-n", "--new-day"}, description = "Date for new entry, format: d-M-yyyy, default: current day") Optional<LocalDate> newDay) {
+            @Option(names = {"-n", "--new-day"}, description = "Date for new entry, format: d-M-yyyy, default: current day") Optional<LocalDate> newDay
+    ) {
 
         LocalDate date = newDay.orElseGet(LocalDate::now);
-        TogglCreateNewEntry newEntry = new TogglCreateNewEntry();
-        newEntry.setDescription(description);
-        newEntry.setProject(projectName);
-        newEntry.setStart(LocalDateTime.of(date, start));
-        newEntry.setEnd(LocalDateTime.of(date, end));
+        TogglCreateNewEntry newEntry = new TogglCreateNewEntry(description, projectName, LocalDateTime.of(date, start), LocalDateTime.of(date, end));
         TogglTimeEntry createdEntry = this.togglResource.createNewEntry(newEntry);
         return new SigmaFiBotResponse(ResponseType.TEXT, "Created following entry" + createdEntry);
     }

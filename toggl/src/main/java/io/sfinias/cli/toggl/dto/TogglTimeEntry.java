@@ -4,63 +4,19 @@ import java.time.ZonedDateTime;
 
 public class TogglTimeEntry {
 
-    private String description = "";
+    public final String description;
 
-    private String projectName = "";
+    public final String projectName;
 
-    private ZonedDateTime start = null;
+    public final ZonedDateTime start;
 
-    private ZonedDateTime end = null;
-
-    public TogglTimeEntry() {
-
-    }
+    public final ZonedDateTime end;
 
     public TogglTimeEntry(String description, String projectName, ZonedDateTime start, ZonedDateTime end) {
 
         this.description = description;
         this.projectName = projectName;
         this.start = start;
-        this.end = end;
-    }
-
-    public String getDescription() {
-
-        return description;
-    }
-
-    public void setDescription(String description) {
-
-        this.description = description;
-    }
-
-    public String getProjectName() {
-
-        return projectName;
-    }
-
-    public void setProjectName(String projectName) {
-
-        this.projectName = projectName;
-    }
-
-    public ZonedDateTime getStart() {
-
-        return start;
-    }
-
-    public void setStart(ZonedDateTime start) {
-
-        this.start = start;
-    }
-
-    public ZonedDateTime getEnd() {
-
-        return end;
-    }
-
-    public void setEnd(ZonedDateTime end) {
-
         this.end = end;
     }
 

@@ -12,127 +12,52 @@ import java.util.List;
 public class TogglTimeEntryModel {
 
     @JsonProperty("id")
-    private long id;
+    public long id;
 
     @JsonProperty("user_id")
-    private int userId;
+    public int userId;
 
     @JsonProperty("description")
-    private String description;
+    public String description;
 
     @JsonProperty("workspace_id")
-    private int workspaceId;
+    public int workspaceId;
 
     @JsonProperty("tag_ids")
     @Nullable
-    private List<Integer> tagIds;
+    public List<Integer> tagIds;
 
     @JsonProperty("start")
-    private Instant start;
+    public Instant start;
 
     @JsonProperty("stop")
     @Nullable
-    private Instant stop;
+    public Instant stop;
 
     @JsonProperty("billable")
-    private boolean billable;
+    public boolean billable;
 
     @JsonProperty("task_id")
     @Nullable
-    private Integer taskId;
+    public Integer taskId;
 
     @JsonProperty("tags")
-    private List<String> tags = new ArrayList<>();
+    public List<String> tags = new ArrayList<>();
 
     @JsonProperty("duration")
-    private int duration;
+    public int duration;
 
     @JsonProperty("at")
-    private String at;
+    public String at;
 
     @JsonProperty("project_id")
-    private int projectId;
+    public int projectId;
 
     @JsonProperty("duronly")
     @Nullable
-    private boolean duronly;
+    public boolean duronly;
 
     @JsonProperty("server_deleted_at")
     @Nullable
-    private Instant serverDeletedAt;
-
-    public long getId() {
-
-        return id;
-    }
-
-    public int getUserId() {
-
-        return userId;
-    }
-
-    public String getDescription() {
-
-        return description;
-    }
-
-    public int getWorkspaceId() {
-
-        return workspaceId;
-    }
-
-    public List<Integer> getTagIds() {
-
-        return tagIds;
-    }
-
-    public Instant getStart() {
-
-        return start;
-    }
-
-    public Instant getStop() {
-
-        return stop;
-    }
-
-    public boolean isBillable() {
-
-        return billable;
-    }
-
-    public Integer getTaskId() {
-
-        return taskId;
-    }
-
-    public List<String> getTags() {
-
-        return tags;
-    }
-
-    public int getDuration() {
-
-        return duration;
-    }
-
-    public String getAt() {
-
-        return at;
-    }
-
-    public int getProjectId() {
-
-        return projectId;
-    }
-
-    public boolean isDuronly() {
-
-        return duronly;
-    }
-
-    public Instant getServerDeletedAt() {
-
-        return serverDeletedAt;
-    }
+    public Instant serverDeletedAt;
 }

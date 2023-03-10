@@ -24,7 +24,7 @@ public class MemeCommand implements Callable<SigmaFiBotResponse> {
     @Override
     public SigmaFiBotResponse call() {
 
-        String url = (dank ? memeResource.getRandomDankMeme() : memeResource.getRandomMeme()).getUrl();
+        String url = (dank ? memeResource.getRandomDankMeme() : memeResource.getRandomMeme()).url;
         return new SigmaFiBotResponse(ResponseType.IMAGE, url);
     }
 }

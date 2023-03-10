@@ -24,7 +24,7 @@ public class CatCommand implements Callable<SigmaFiBotResponse> {
     @Override
     public SigmaFiBotResponse call() {
 
-        String url = (isGif ? catResource.getRandomCatGif() : catResource.getRandomCat()).getUrl();
+        String url = (isGif ? catResource.getRandomCatGif() : catResource.getRandomCat()).url;
         ResponseType type = isGif ? ResponseType.VIDEO : ResponseType.IMAGE;
         return new SigmaFiBotResponse(type, url);
     }
