@@ -4,20 +4,11 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>io.sfinias.bot</groupId>
-        <artifactId>bot-root</artifactId>
+        <groupId>io.sfinias.cli</groupId>
+        <artifactId>cli-root</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-
-    <groupId>io.sfinias</groupId>
     <artifactId>telegram</artifactId>
-
-    <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.telegram</groupId>
@@ -30,19 +21,19 @@
             <version>4.7.1</version>
         </dependency>
         <dependency>
-            <groupId>io.sfinias</groupId>
+            <groupId>io.sfinias.cli</groupId>
             <artifactId>cat</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>io.sfinias</groupId>
+            <groupId>io.sfinias.cli</groupId>
             <artifactId>meme</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>io.sfinias</groupId>
+            <groupId>io.sfinias.cli</groupId>
             <artifactId>toggl</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>

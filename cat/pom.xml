@@ -5,17 +5,11 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>io.sfinias.bot</groupId>
-        <artifactId>bot-root</artifactId>
+        <groupId>io.sfinias.cli</groupId>
+        <artifactId>cli-root</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <groupId>io.sfinias</groupId>
     <artifactId>cat</artifactId>
-    <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>io.quarkus</groupId>
