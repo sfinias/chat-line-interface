@@ -1,4 +1,4 @@
-package io.sfinias.cli.meme.service;
+package io.sfinias.cli.meme;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
@@ -11,7 +11,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 @Path("/gimme")
 @RegisterRestClient(configKey = "meme-api")
-public interface MemeService {
+interface MemeService {
 
     @GET
     @Produces(APPLICATION_JSON)

@@ -1,6 +1,6 @@
 package io.sfinias.cli.telegram.commands;
 
-import io.sfinias.cli.cat.resource.CatResource;
+import io.sfinias.cli.cat.CatResource;
 import io.sfinias.cli.telegram.SigmaFiBot.ResponseType;
 import io.sfinias.cli.telegram.dto.SigmaFiBotResponse;
 import java.util.concurrent.Callable;

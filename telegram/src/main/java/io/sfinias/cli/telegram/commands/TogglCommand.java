@@ -2,9 +2,9 @@ package io.sfinias.cli.telegram.commands;
 
 import io.sfinias.cli.telegram.SigmaFiBot.ResponseType;
 import io.sfinias.cli.telegram.dto.SigmaFiBotResponse;
+import io.sfinias.cli.toggl.TogglResource;
 import io.sfinias.cli.toggl.dto.TogglTimeEntry;
 import io.sfinias.cli.toggl.model.TogglCreateNewEntry;
-import io.sfinias.cli.toggl.resource.TogglResource;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;

@@ -3,15 +3,15 @@ package io.sfinias.cli.telegram;
 import static io.sfinias.cli.telegram.commands.TogglCommand.DATE_CONVERTER;
 
 import io.quarkus.logging.Log;
-import io.sfinias.cli.cat.resource.CatResource;
-import io.sfinias.cli.meme.resource.MemeResource;
+import io.sfinias.cli.cat.CatResource;
+import io.sfinias.cli.meme.MemeResource;
 import io.sfinias.cli.telegram.commands.CatCommand;
 import io.sfinias.cli.telegram.commands.MemeCommand;
 import io.sfinias.cli.telegram.commands.ParentCommand;
 import io.sfinias.cli.telegram.commands.TogglCommand;
 import io.sfinias.cli.telegram.dto.SigmaFiBotResponse;
 import io.sfinias.cli.telegram.util.ExceptionHandler;
-import io.sfinias.cli.toggl.resource.TogglResource;
+import io.sfinias.cli.toggl.TogglResource;
 import io.smallrye.mutiny.tuples.Functions.Function3;
 import java.io.PrintWriter;
 import java.io.StringWriter;

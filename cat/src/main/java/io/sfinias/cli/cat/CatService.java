@@ -1,4 +1,4 @@
-package io.sfinias.cli.cat.service;
+package io.sfinias.cli.cat;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
@@ -12,10 +12,10 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 @Path("/v1")
 @RegisterRestClient(configKey = "cat-api")
-public interface CatService {
+interface CatService {
 
     @GET
     @Path("/images/search")
     @Produces(APPLICATION_JSON)
-    List<CatModel> getRandomCat(@QueryParam("mime_types")String type);
+    List<CatModel> getRandomCat(@QueryParam("mime_types") String type);
 }

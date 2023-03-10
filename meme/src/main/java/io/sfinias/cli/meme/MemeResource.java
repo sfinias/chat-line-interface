@@ -1,8 +1,7 @@
-package io.sfinias.cli.meme.resource;
+package io.sfinias.cli.meme;
 
 import io.quarkus.logging.Log;
 import io.sfinias.cli.meme.model.MemeModel;
-import io.sfinias.cli.meme.service.MemeService;
 import javax.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 

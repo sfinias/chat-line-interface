@@ -1,4 +1,4 @@
-package io.sfinias.cli.toggl.resource;
+package io.sfinias.cli.toggl;
 
 import io.quarkus.logging.Log;
 import io.sfinias.cli.toggl.dto.TogglTimeEntry;
@@ -6,7 +6,6 @@ import io.sfinias.cli.toggl.model.RequestTimeEntryModel;
 import io.sfinias.cli.toggl.model.TogglCreateNewEntry;
 import io.sfinias.cli.toggl.model.TogglProjectModel;
 import io.sfinias.cli.toggl.model.TogglTimeEntryModel;
-import io.sfinias.cli.toggl.service.TogglService;
 import io.smallrye.mutiny.tuples.Tuple2;
 import java.time.LocalDate;
 import java.time.Period;

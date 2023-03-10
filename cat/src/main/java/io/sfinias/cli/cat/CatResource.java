@@ -1,7 +1,6 @@
-package io.sfinias.cli.cat.resource;
+package io.sfinias.cli.cat;
 
 import io.sfinias.cli.cat.model.CatModel;
-import io.sfinias.cli.cat.service.CatService;
 import javax.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 

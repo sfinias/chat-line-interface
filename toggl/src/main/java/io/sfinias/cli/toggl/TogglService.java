@@ -1,4 +1,4 @@
-package io.sfinias.cli.toggl.service;
+package io.sfinias.cli.toggl;
 
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 
@@ -22,7 +22,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 @Path("/api/v9")
 @Singleton
 @RegisterRestClient(configKey = "toggl-api")
-public interface TogglService {
+interface TogglService {
 
     @GET
     @Path("/workspaces/{workspace_id}/projects")
