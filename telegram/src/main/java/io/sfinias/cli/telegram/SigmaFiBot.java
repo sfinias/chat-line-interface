@@ -4,7 +4,6 @@ import static io.sfinias.cli.telegram.commands.TogglCommand.DATE_CONVERTER;
 
 import io.quarkus.logging.Log;
 import io.sfinias.cli.cat.resource.CatResource;
-import io.sfinias.cli.cat.service.CatService;
 import io.sfinias.cli.meme.resource.MemeResource;
 import io.sfinias.cli.telegram.commands.CatCommand;
 import io.sfinias.cli.telegram.commands.MemeCommand;
@@ -78,7 +77,6 @@ public class SigmaFiBot extends TelegramLongPollingBot {
 
     private void handleNewMessage(User user, Message message) {
 
-        CatService catService;
         Log.info(user + ": " + message.getText());
         String command = message.getText();
         try (StringWriter out = new StringWriter();

@@ -1,24 +1,17 @@
 package io.sfinias.cli.telegram.resource;
 
+import io.quarkus.runtime.Startup;
 import io.sfinias.cli.telegram.SigmaFiBot;
-import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
+import javax.enterprise.context.ApplicationScoped;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
-@Path("/bot")
+@Startup
+@ApplicationScoped
 public class BotResource {
 
-    @Inject
-    SigmaFiBot bot;
-
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    public String startBot() {
+    public BotResource(SigmaFiBot bot) {
 
         try {
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
@@ -26,6 +19,5 @@ public class BotResource {
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
-        return "started";
     }
 }
