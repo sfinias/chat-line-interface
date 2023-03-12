@@ -10,6 +10,7 @@ import io.sfinias.cli.telegram.commands.MemeCommand;
 import io.sfinias.cli.telegram.commands.ParentCommand;
 import io.sfinias.cli.telegram.commands.TogglCommand;
 import io.sfinias.cli.telegram.dto.SigmaFiBotResponse;
+import io.sfinias.cli.telegram.util.CommandUtils;
 import io.sfinias.cli.telegram.util.ExceptionHandler;
 import io.sfinias.cli.toggl.TogglResource;
 import io.smallrye.mutiny.tuples.Functions.Function3;
@@ -69,8 +70,8 @@ public class SigmaFiBot extends TelegramLongPollingBot {
 
     private void handleNewMessage(User user, Message message) {
 
-        Log.info(user + ": " + message.getText());
         String command = message.getText();
+        Log.info(user + ": " + command);
         try (StringWriter out = new StringWriter();
                 PrintWriter writer = new PrintWriter(out)) {
             CommandLine cmd = new CommandLine(new ParentCommand())
@@ -80,7 +81,7 @@ public class SigmaFiBot extends TelegramLongPollingBot {
                     .setOut(writer).setErr(writer)
                     .setExecutionExceptionHandler(new ExceptionHandler())
                     .registerConverter(LocalDate.class, DATE_CONVERTER);
-            cmd.execute(command.split(" "));
+            cmd.execute(CommandUtils.INSTANT.parseCommand(command).toArray(new String[0]));
             if (out.toString().length() != 0) {
                 ResponseType.TEXT.combiningFunction.apply(this, user, out.toString());
             }
