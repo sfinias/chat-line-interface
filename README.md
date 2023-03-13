@@ -1,4 +1,4 @@
-# quarkus-telegram-bot Project
+# chat-line-interface Project
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
@@ -51,7 +51,7 @@ using:
 ```
 
 You can then execute your native executable
-with: `./target/quarkus-telegram-bot-1.0-SNAPSHOT-runner`
+with: `./target/chat-line-interface-1.0-SNAPSHOT-runner`
 
 If you want to learn more about building native executables, please
 consult https://quarkus.io/guides/maven-tooling.

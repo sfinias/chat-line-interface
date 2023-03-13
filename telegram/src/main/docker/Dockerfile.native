@@ -7,11 +7,11 @@
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.native -t quarkus/quarkus-telegram-bot .
+# docker build -f src/main/docker/Dockerfile.native -t quarkus/chat-line-interface .
 #
 # Then run the container using:
 #
-# docker run -i --rm -p 8080:8080 quarkus/quarkus-telegram-bot
+# docker run -i --rm -p 8080:8080 quarkus/chat-line-interface
 #
 ###
 FROM registry.access.redhat.com/ubi8/ubi-minimal:8.4
