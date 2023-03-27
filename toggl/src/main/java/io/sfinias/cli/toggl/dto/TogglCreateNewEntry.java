@@ -21,11 +21,14 @@ public final class TogglCreateNewEntry {
     @NotNull(message = "Must provide an end timestamp")
     public final LocalDateTime end;
 
-    public TogglCreateNewEntry(String description, String project, LocalDateTime start, LocalDateTime end) {
+    public final String apiKey;
+
+    public TogglCreateNewEntry(String description, String project, LocalDateTime start, LocalDateTime end, String apiKey) {
 
         this.description = description;
         this.project = project;
         this.start = start;
         this.end = end;
+        this.apiKey = apiKey;
     }
 }

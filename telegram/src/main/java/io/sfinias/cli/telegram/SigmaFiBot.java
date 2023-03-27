@@ -24,21 +24,25 @@ import java.util.function.BiFunction;
 import javax.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.GetMe;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendAnimation;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.methods.updates.SetWebhook;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.generics.WebhookBot;
 import picocli.CommandLine;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.ParseResult;
 
 @ApplicationScoped
-public class SigmaFiBot extends TelegramLongPollingBot {
+public class SigmaFiBot extends TelegramLongPollingBot implements WebhookBot {
 
     final CatResource catResource;
 
@@ -46,7 +50,7 @@ public class SigmaFiBot extends TelegramLongPollingBot {
 
     final MemeResource memeResource;
 
-    public SigmaFiBot(CatResource catResource, TogglResource togglResource, MemeResource memeResource, @ConfigProperty(name = "sigmafi.apikey") final String apikey) {
+    public SigmaFiBot(CatResource catResource, TogglResource togglResource, MemeResource memeResource, @ConfigProperty(name = "sigmafi_apikey") final String apikey) {
 
         super(apikey);
         this.catResource = catResource;
@@ -71,7 +75,7 @@ public class SigmaFiBot extends TelegramLongPollingBot {
     private void handleNewMessage(User user, Message message) {
 
         String command = message.getText();
-        Log.info(user + ": " + command);
+        Log.info(user);
         try (StringWriter out = new StringWriter();
                 PrintWriter writer = new PrintWriter(out)) {
             CommandLine cmd = new CommandLine(new ParentCommand())
@@ -105,6 +109,24 @@ public class SigmaFiBot extends TelegramLongPollingBot {
     private User extractUser(Update update) {
 
         return update.hasMessage() ? update.getMessage().getFrom() : update.getCallbackQuery().getFrom();
+    }
+
+    @Override
+    public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
+
+        onUpdateReceived(update);
+        return new GetMe();
+    }
+
+    @Override
+    public void setWebhook(SetWebhook setWebhook) throws TelegramApiException {
+        //Not needed
+    }
+
+    @Override
+    public String getBotPath() {
+
+        return "sigma-fi";
     }
 
     public enum ResponseType {

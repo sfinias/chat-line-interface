@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 @ApplicationScoped
@@ -25,24 +24,21 @@ public class TogglResource {
     @RestClient
     TogglService togglService;
 
-    @ConfigProperty(name = "toggl.token")
-    String token;
+    public List<TogglProjectModel> getProjects(Long wid, String apiKey) {
 
-    public List<TogglProjectModel> getProjects(Long wid) {
-
-        List<TogglProjectModel> projects = (wid == null ? togglService.getPersonalProjects(encryptedToken()) : togglService.getProjectsFromWorkspace(encryptedToken(), wid));
+        List<TogglProjectModel> projects = (wid == null ? togglService.getPersonalProjects(encryptedToken(apiKey)) : togglService.getProjectsFromWorkspace(encryptedToken(apiKey), wid));
         Log.debug("Projects Received: " + projects);
         return projects;
     }
 
-    public List<TogglTimeEntryModel> getTimeEntriesOfDate(LocalDate date) {
+    public List<TogglTimeEntryModel> getTimeEntriesOfDate(LocalDate date, String apiKey) {
 
-        return togglService.getTimeEntries(encryptedToken(), date, date.plus(Period.ofDays(1)));
+        return togglService.getTimeEntries(encryptedToken(apiKey), date, date.plus(Period.ofDays(1)));
     }
 
     public TogglTimeEntry createNewEntry(TogglCreateNewEntry createNewEntry) {
 
-        return getProjects(null).stream()
+        return getProjects(null, createNewEntry.apiKey).stream()
                 .filter(project -> project.name.toUpperCase().contains(createNewEntry.project.toUpperCase()))
                 .reduce((a, b) -> {
                     throw new IllegalArgumentException("Multiple projects found with name " + createNewEntry.project + ":\n " + a.name + "\n" + b.name);
@@ -58,15 +54,15 @@ public class TogglResource {
                     newTimeEntry.createdWith = "SigmaFiBot";
                     return Tuple2.of(project, newTimeEntry);
                 })
-                .map(tuple -> tuple.mapItem2(this::createEntry))
+                .map(tuple -> tuple.mapItem2(request -> createEntry(request, createNewEntry.apiKey)))
                 .map(tuple -> new TogglTimeEntry(tuple.getItem2().description, tuple.getItem1().name, tuple.getItem2().start.atZone(ZoneId.systemDefault()), tuple.getItem2().stop.atZone(ZoneId.systemDefault())))
                 .orElseThrow(() -> new RuntimeException("Project Not Found"));
     }
 
-    public List<TogglTimeEntry> copyTimeEntriesOfDate(LocalDate dateToBeCopied, LocalDate targetDate) {
+    public List<TogglTimeEntry> copyTimeEntriesOfDate(LocalDate dateToBeCopied, LocalDate targetDate, String apiKey) {
 
-        Map<Integer, TogglProjectModel> projectsMap = getProjects(null).stream().collect(Collectors.toMap(project -> project.id, x -> x));
-        return getTimeEntriesOfDate(dateToBeCopied).stream()
+        Map<Integer, TogglProjectModel> projectsMap = getProjects(null, apiKey).stream().collect(Collectors.toMap(project -> project.id, x -> x));
+        return getTimeEntriesOfDate(dateToBeCopied, apiKey).stream()
                 .map(timeEntry -> {
                     TogglProjectModel project = projectsMap.get(timeEntry.projectId);
                     RequestTimeEntryModel newTimeEntry = new RequestTimeEntryModel();
@@ -79,18 +75,18 @@ public class TogglResource {
                     newTimeEntry.createdWith = "SigmaFiBot";
                     return Tuple2.of(project, newTimeEntry);
                 })
-                .map(tuple -> tuple.mapItem2(this::createEntry))
+                .map(tuple -> tuple.mapItem2(request -> createEntry(request, apiKey)))
                 .map(tuple -> new TogglTimeEntry(tuple.getItem2().description, tuple.getItem1().name, tuple.getItem2().start.atZone(ZoneId.systemDefault()), tuple.getItem2().stop.atZone(ZoneId.systemDefault())))
                 .collect(Collectors.toList());
     }
 
-    private TogglTimeEntryModel createEntry(RequestTimeEntryModel timeEntryModel) {
+    private TogglTimeEntryModel createEntry(RequestTimeEntryModel timeEntryModel, String apiKey) {
 
-        return togglService.createTimeEntry(encryptedToken(), timeEntryModel.workspaceId, timeEntryModel);
+        return togglService.createTimeEntry(encryptedToken(apiKey), timeEntryModel.workspaceId, timeEntryModel);
     }
 
-    private String encryptedToken() {
+    private String encryptedToken(String apiKey) {
 
-        return "Basic " + Base64.getEncoder().encodeToString((token + ":api_token").getBytes());
+        return "Basic " + Base64.getEncoder().encodeToString((apiKey + ":api_token").getBytes());
     }
 }

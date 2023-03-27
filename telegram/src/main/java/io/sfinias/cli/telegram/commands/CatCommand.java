@@ -7,13 +7,13 @@ import java.util.concurrent.Callable;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "cat", mixinStandardHelpOptions = true, version = "cat 1.0.0",
-        description = "Returns cat pics")
+@Command(name = "cat", mixinStandardHelpOptions = true, version = "1.0.0",
+        description = "Sends you a cat pic")
 public class CatCommand implements Callable<SigmaFiBotResponse> {
 
     private final CatResource catResource;
 
-    @Option(names = {"-g", "--gif"}, description = "Returns a gif")
+    @Option(names = {"-g", "--gif"}, description = "Make it a gif")
     private boolean isGif;
 
     public CatCommand(CatResource catResource) {

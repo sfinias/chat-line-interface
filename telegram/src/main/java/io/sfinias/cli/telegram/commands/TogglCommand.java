@@ -15,7 +15,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.ITypeConverter;
 import picocli.CommandLine.Option;
 
-@Command(name = "toggl", mixinStandardHelpOptions = true, version = "toggl 1.0.0",
+@Command(name = "toggl", mixinStandardHelpOptions = true, version = "1.0.0",
         description = "Interact with the Toggl API")
 public class TogglCommand {
 
@@ -23,8 +23,8 @@ public class TogglCommand {
 
     public static final ITypeConverter<LocalDate> DATE_CONVERTER = value -> LocalDate.parse(value, DateTimeFormatter.ofPattern("d-M-yyyy"));
 
-    @Option(names = {"-a", "--apikey"}, description = "Toggl API key")
-    private String apiKey;
+//    @Option(names = {"-a", "--apikey"}, description = "Toggl API key")
+//    private String apiKey;
 
     private static final String NEW_ENTRIES_MESSAGE = "Created following entries\n";
 
@@ -37,9 +37,11 @@ public class TogglCommand {
             description = "Copies the entry of a past date")
     public SigmaFiBotResponse copy(
             @Option(names = {"-t", "--target-date"}, description = "Date which is copied, format: d-M-yyyy", required = true) LocalDate targetDay,
-            @Option(names = {"-n", "--new-day"}, description = "Date for new entry, format: d-M-yyyy, default: current day") Optional<LocalDate> newDay) {
+            @Option(names = {"-n", "--new-day"}, description = "Date for new entry, format: d-M-yyyy, default: current day") Optional<LocalDate> newDay,
+            @Option(names = {"-a", "--apikey"}, description = "Toggl API key") String apiKey
+    ) {
 
-        List<TogglTimeEntry> newEntries = this.togglResource.copyTimeEntriesOfDate(targetDay, newDay.orElseGet(LocalDate::now));
+        List<TogglTimeEntry> newEntries = this.togglResource.copyTimeEntriesOfDate(targetDay, newDay.orElseGet(LocalDate::now), apiKey);
         return new SigmaFiBotResponse(ResponseType.TEXT, NEW_ENTRIES_MESSAGE + newEntries);
     }
 
@@ -48,13 +50,14 @@ public class TogglCommand {
     public SigmaFiBotResponse create(
             @Option(names = {"-s", "--start"}, description = "Starting time of the entry, format: hh:mm", required = true) LocalTime start,
             @Option(names = {"-e", "--end"}, description = "Ending time of the entry, format: hh:mm", required = true) LocalTime end,
-            @Option(names = {"-p", "--project"}, description = "Project name, does not have to post the whole name", required = true) String projectName,
-            @Option(names = {"-d", "--description"}, description = "Description of the new entry", required = true) String description,
-            @Option(names = {"-n", "--new-day"}, description = "Date for new entry, format: d-M-yyyy, default: current day") Optional<LocalDate> newDay
+            @Option(names = {"-p", "--project"}, description = "Project name", required = true) String projectName,
+            @Option(names = {"-d", "--description"}, description = "Description for the new entry", required = true) String description,
+            @Option(names = {"-n", "--new-day"}, description = "Date for new entry, format: d-M-yyyy, default: current day") Optional<LocalDate> newDay,
+            @Option(names = {"-a", "--apikey"}, description = "Toggl API key") String apiKey
     ) {
 
         LocalDate date = newDay.orElseGet(LocalDate::now);
-        TogglCreateNewEntry newEntry = new TogglCreateNewEntry(description, projectName, LocalDateTime.of(date, start), LocalDateTime.of(date, end));
+        TogglCreateNewEntry newEntry = new TogglCreateNewEntry(description, projectName, LocalDateTime.of(date, start), LocalDateTime.of(date, end), apiKey);
         TogglTimeEntry createdEntry = this.togglResource.createNewEntry(newEntry);
         return new SigmaFiBotResponse(ResponseType.TEXT, NEW_ENTRIES_MESSAGE + createdEntry);
     }
